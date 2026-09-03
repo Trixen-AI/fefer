@@ -11,7 +11,7 @@ tags:
   - name: health
     description: Health operations
   - name: keeper
-    description: Delta LP keeper operations
+    description: Liqora keeper operations
 paths:
   /healthz:
     get:

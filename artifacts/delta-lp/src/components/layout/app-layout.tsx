@@ -45,7 +45,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-[100dvh] overflow-x-hidden">
-      <div className="pointer-events-none fixed inset-0 opacity-60 delta-grid" />
+      <div className="pointer-events-none fixed inset-0 opacity-60 liqora-grid" />
       <div className="relative flex min-h-[100dvh]">
         {/* Desktop Sidebar */}
         <aside style={{ background: "rgba(8,21,14,.88)" }} className="hidden w-[232px] shrink-0 border-r px-5 py-6 lg:flex lg:flex-col">
@@ -54,7 +54,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <ArrowDown size={18} strokeWidth={3} />
             </div>
             <div>
-              <div className="text-sm font-bold tracking-tight">delta<span className="text-primary">.</span>lp</div>
+              <div className="text-sm font-bold tracking-tight">liqora<span className="text-primary">.</span></div>
               <div className="text-[9px] uppercase tracking-[.18em] text-[#65806d]">control surface</div>
             </div>
           </div>
@@ -93,7 +93,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <button onClick={() => setMobileNav(!mobileNav)} aria-label="Open navigation" className="rounded-md p-1 text-[#92a995]">
                 <Menu size={20} />
               </button>
-              <span className="text-sm font-bold">delta<span className="text-primary">.</span>lp</span>
+              <span className="text-sm font-bold">liqora<span className="text-primary">.</span></span>
             </div>
             <div className="hidden items-center gap-2 text-xs text-[#77907d] sm:flex">
               <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-primary' : 'bg-[#536c5a]'}`} /> 

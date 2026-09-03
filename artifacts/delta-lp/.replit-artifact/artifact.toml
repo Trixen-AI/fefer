@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Delta LP"
+title = "Liqora"
 description = "A premium Web3 interface for creating concentrated liquidity positions and configuring automated take-profit exits on Robinhood Chain."
 version = "1.0.0"
 id = "artifacts/delta-lp"
@@ -12,10 +12,10 @@ paths = [ "/" ]
 localPort = 25278
 
 [services.development]
-run = "pnpm --filter @workspace/delta-lp run dev"
+run = "pnpm --filter @workspace/liqora run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/delta-lp", "run", "build" ]
+build = [ "pnpm", "--filter", "@workspace/liqora", "run", "build" ]
 serve = "static"
 publicDir = "artifacts/delta-lp/dist/public"
 

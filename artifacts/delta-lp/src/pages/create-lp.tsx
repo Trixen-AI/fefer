@@ -112,7 +112,7 @@ export default function CreateLP() {
   };
 
   return (
-    <div className="delta-rise max-w-4xl">
+    <div className="liqora-rise max-w-4xl">
       <Link href="/" className="mb-7 inline-flex items-center gap-2 rounded text-xs text-[#7c967f] hover:text-[#c9ddcc] focus:outline-none focus:ring-1 focus:ring-primary">
         <ArrowLeft size={15} /> Back to positions
       </Link>

@@ -91,7 +91,7 @@
 }
 
 @layer utilities {
-  @keyframes delta-rise {
+  @keyframes liqora-rise {
     from {
       opacity: 0;
       transform: translateY(8px);
@@ -101,7 +101,7 @@
       transform: translateY(0);
     }
   }
-  @keyframes delta-pulse {
+  @keyframes liqora-pulse {
     0%,
     100% {
       opacity: 0.45;
@@ -110,10 +110,10 @@
       opacity: 1;
     }
   }
-  .delta-rise {
-    animation: delta-rise 0.45s ease-out both;
+  .liqora-rise {
+    animation: liqora-rise 0.45s ease-out both;
   }
-  .delta-grid {
+  .liqora-grid {
     background-image: linear-gradient(
         rgba(100, 180, 120, 0.035) 1px,
         transparent 1px

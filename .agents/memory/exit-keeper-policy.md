@@ -1,6 +1,6 @@
 ---
 name: Exit keeper policy
-description: Durable safety rules for Delta LP automated exits.
+description: Durable safety rules for Liqora automated exits.
 ---
 
 Automated exits require the position tick to remain outside the same side of its range for five continuous minutes. Returning in range or crossing to the other side resets the timer. NFT approval is per token ID and revocable; the NFT remains in the owner's wallet, and collected assets always go directly to the owner.

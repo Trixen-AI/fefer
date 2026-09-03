@@ -100,7 +100,7 @@ export default function Automation() {
   const live = Boolean(status?.configured && status.running);
 
   return (
-    <div className="delta-rise">
+    <div className="liqora-rise">
       <div className="mb-8">
         <p className="mb-3 text-[11px] uppercase tracking-[.18em] text-[#688471]">Keeper operations</p>
         <h1 className="text-3xl font-semibold tracking-[-.04em]">Automation</h1>

@@ -71,7 +71,7 @@ interface INonfungiblePositionManager {
     function burn(uint256 tokenId) external payable;
 }
 
-contract DeltaExitKeeper {
+contract LiqoraExitKeeper {
     uint32 public constant MIN_GRACE_PERIOD = 60;
     uint32 public constant MAX_GRACE_PERIOD = 1 days;
 

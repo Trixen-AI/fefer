@@ -52,7 +52,7 @@ export default function PositionDetail() {
   };
 
   return (
-    <div className="delta-rise">
+    <div className="liqora-rise">
       <Link
         href="/"
         className="mb-7 inline-flex items-center gap-2 rounded text-xs text-[#7c967f] hover:text-[#c9ddcc] focus:outline-none focus:ring-1 focus:ring-primary"

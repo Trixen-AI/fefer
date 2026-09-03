@@ -273,7 +273,7 @@
       "name": "check",
       "outputs": [
         {
-          "internalType": "enum DeltaExitKeeper.Action",
+          "internalType": "enum LiqoraExitKeeper.Action",
           "name": "action",
           "type": "uint8"
         },

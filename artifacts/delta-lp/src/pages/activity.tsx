@@ -10,7 +10,7 @@ export default function ActivityView() {
   const { transactions, isLoading, error, refresh } = useActivity();
 
   return (
-    <div className="delta-rise">
+    <div className="liqora-rise">
       <div className="mb-8">
         <p className="mb-3 text-[11px] uppercase tracking-[.18em] text-[#688471]">Audit trail</p>
         <h1 className="text-3xl font-semibold tracking-[-.04em]">Activity</h1>
