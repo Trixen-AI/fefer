@@ -3,15 +3,39 @@ import { Link, useLocation, useParams } from "wouter";
 import { Token, StatusPill } from "@/components/ui/shared";
 import { useLiquidityPositions } from "@/hooks/use-liquidity-positions";
 import { usePositionActions } from "@/hooks/use-position-actions";
+import { useUniswapPool } from "@/hooks/use-uniswap-pool";
 import { useWallet } from "@/hooks/use-wallet";
 import { robinhoodChain } from "@/config/network";
 import { shortenAddress } from "@/lib/ethereum";
+
+function supportsLiveRange(position: {
+  token0: string;
+  token1: string;
+  fee: number;
+}) {
+  const positionTokens = [position.token0, position.token1]
+    .map((address) => address.toLowerCase())
+    .sort();
+  const configuredTokens = [
+    robinhoodChain.token0Address,
+    robinhoodChain.token1Address,
+  ]
+    .map((address) => address.toLowerCase())
+    .sort();
+
+  return (
+    position.fee === 500 &&
+    positionTokens[0] === configuredTokens[0] &&
+    positionTokens[1] === configuredTokens[1]
+  );
+}
 
 export default function PositionDetail() {
   const { id } = useParams();
   const [, navigate] = useLocation();
   const { connected, onTargetNetwork } = useWallet();
   const { positions, isLoading, error, refresh } = useLiquidityPositions();
+  const { currentTick } = useUniswapPool();
   const {
     collect,
     close,
@@ -102,10 +126,64 @@ export default function PositionDetail() {
             <StatusPill>{positionReady ? "On-chain ticks" : "Not available"}</StatusPill>
           </div>
           <div className="mt-6 h-52 rounded-lg border border-[#6aa47720] bg-[#08150e] p-5">
-            <div className="flex h-full items-center justify-center text-center text-xs text-[#78917e]">
-              {positionReady && position
-                ? `Lower tick ${position.tickLower}  ·  Upper tick ${position.tickUpper}`
-                : "Price range unavailable"}
+            <div className="flex h-full flex-col justify-center gap-7">
+              {positionReady &&
+              position &&
+              currentTick !== null &&
+              supportsLiveRange(position) ? (
+                <>
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[10px] uppercase tracking-widest text-[#607a67]">Min Tick</span>
+                      <span data-testid="text-tick-lower" className="font-mono text-[#c3d4c5]">{position.tickLower}</span>
+                    </div>
+                    
+                    <div className="flex flex-col items-center gap-1.5">
+                      <span className="text-[10px] uppercase tracking-widest text-[#607a67]">Current</span>
+                      <span data-testid="text-tick-current" className="font-mono text-base font-medium text-primary">{currentTick}</span>
+                    </div>
+                    
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="text-[10px] uppercase tracking-widest text-[#607a67]">Max Tick</span>
+                      <span data-testid="text-tick-upper" className="font-mono text-[#c3d4c5]">{position.tickUpper}</span>
+                    </div>
+                  </div>
+                  
+                  <div data-testid="indicator-range-visual" className="relative h-2 w-full overflow-visible rounded-full bg-[#0b1a11] ring-1 ring-inset ring-[#6aa47718]">
+                    <div className="absolute inset-y-0 left-[20%] right-[20%] rounded-full bg-[#1b3b27]" />
+                    <div 
+                      className={`absolute top-1/2 -mt-2 h-4 w-4 rounded-full border-2 border-[#08150e] ${currentTick >= position.tickLower && currentTick <= position.tickUpper ? "bg-primary shadow-[0_0_12px_rgba(94,224,138,0.8)]" : "bg-[#8ea596]"}`}
+                      style={{ 
+                        left: currentTick < position.tickLower 
+                          ? "5%" 
+                          : currentTick > position.tickUpper 
+                            ? "95%" 
+                            : `${20 + ((currentTick - position.tickLower) / Math.max(1, position.tickUpper - position.tickLower)) * 60}%`
+                      }}
+                    />
+                  </div>
+                  
+                  <div className="text-center" data-testid="status-range-detail">
+                    {currentTick >= position.tickLower && currentTick <= position.tickUpper ? (
+                      <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary ring-1 ring-primary/20">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                        In range • Earning fees
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 rounded-full bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive-foreground ring-1 ring-destructive/20">
+                        <span className="h-1.5 w-1.5 rounded-full bg-destructive-foreground" />
+                        Out of range • Not earning
+                      </span>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="flex h-full items-center justify-center text-center text-xs text-[#78917e]">
+                  {positionReady && position
+                    ? `Lower tick ${position.tickLower}  ·  Upper tick ${position.tickUpper}`
+                    : "Price range unavailable"}
+                </div>
+              )}
             </div>
           </div>
           {positionReady && position && (
@@ -133,6 +211,7 @@ export default function PositionDetail() {
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <button
+                  data-testid="button-collect"
                   onClick={() => void handleCollect()}
                   disabled={isSubmitting}
                   className="rounded-lg border border-[#6aa47738] px-3 py-2.5 text-xs font-semibold text-[#b8e8c1] transition hover:bg-[#5ee08a0d] disabled:cursor-not-allowed disabled:opacity-40"
@@ -140,6 +219,7 @@ export default function PositionDetail() {
                   Collect fees
                 </button>
                 <button
+                  data-testid="button-close"
                   onClick={() => void handleClose()}
                   disabled={isSubmitting || BigInt(position.liquidity) === 0n}
                   className="rounded-lg border border-[#9a5b50] px-3 py-2.5 text-xs font-semibold text-[#d39a8d] transition hover:bg-[#9a5b5018] disabled:cursor-not-allowed disabled:opacity-40"

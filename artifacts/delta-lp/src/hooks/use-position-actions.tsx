@@ -1,6 +1,11 @@
 import { useCallback, useState } from "react";
 import {
+  decodeUint256,
+  decodeWords,
+  encodeAddress,
+  encodeUint256,
   getEthereumProvider,
+  readRpcContract,
   sendTransaction,
   simulateRpcTransaction,
   waitForTransactionReceipt,
@@ -16,6 +21,73 @@ import {
   decodeRemovalSimulation,
   minimumAfterSlippage,
 } from "@/lib/uniswap-position";
+
+const BALANCE_OF_SELECTOR = "0x70a08231";
+const TOKEN_OF_OWNER_BY_INDEX_SELECTOR = "0x2f745c59";
+const POSITIONS_SELECTOR = "0x99fbab88";
+const POSITION_READ_BATCH_SIZE = 20;
+
+async function readAllFeeBearingTokenIds(owner: string) {
+  const manager = robinhoodChain.uniswapV3PositionManager;
+  const countResponse = await readRpcContract(
+    robinhoodChain.rpcUrl,
+    manager,
+    `${BALANCE_OF_SELECTOR}${encodeAddress(owner)}`,
+  );
+  const [countWord] = decodeWords(countResponse);
+  if (!countWord) {
+    throw new Error("Position manager returned an empty balance.");
+  }
+
+  const count = Number(decodeUint256(countWord));
+  const feeBearingTokenIds: bigint[] = [];
+
+  for (let start = 0; start < count; start += POSITION_READ_BATCH_SIZE) {
+    const indexes = Array.from(
+      { length: Math.min(POSITION_READ_BATCH_SIZE, count - start) },
+      (_, offset) => start + offset,
+    );
+    const tokenIds = await Promise.all(
+      indexes.map(async (index) => {
+        const response = await readRpcContract(
+          robinhoodChain.rpcUrl,
+          manager,
+          `${TOKEN_OF_OWNER_BY_INDEX_SELECTOR}${encodeAddress(owner)}${encodeUint256(index)}`,
+        );
+        const [tokenIdWord] = decodeWords(response);
+        if (!tokenIdWord) {
+          throw new Error(`Position manager returned an empty token ID at index ${index}.`);
+        }
+        return decodeUint256(tokenIdWord);
+      }),
+    );
+
+    const positionResponses = await Promise.all(
+      tokenIds.map((tokenId) =>
+        readRpcContract(
+          robinhoodChain.rpcUrl,
+          manager,
+          `${POSITIONS_SELECTOR}${encodeUint256(tokenId)}`,
+        ),
+      ),
+    );
+
+    positionResponses.forEach((response, index) => {
+      const words = decodeWords(response);
+      if (words.length < 12) {
+        throw new Error("Position manager returned incomplete position data.");
+      }
+      const tokensOwed0 = decodeUint256(words[10] ?? "0");
+      const tokensOwed1 = decodeUint256(words[11] ?? "0");
+      const tokenId = tokenIds[index];
+      if ((tokensOwed0 > 0n || tokensOwed1 > 0n) && tokenId !== undefined) {
+        feeBearingTokenIds.push(tokenId);
+      }
+    });
+  }
+
+  return feeBearingTokenIds;
+}
 
 export function usePositionActions() {
   const { address, onTargetNetwork } = useWallet();
@@ -71,6 +143,46 @@ export function usePositionActions() {
         return hash;
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : "Fee collection failed.");
+        throw cause;
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [address, onTargetNetwork],
+  );
+
+  const collectAll = useCallback(
+    async () => {
+      setIsSubmitting(true);
+      setError(null);
+      setStatus(null);
+      setTxHashes([]);
+      let collectedCount = 0;
+      try {
+        const { address } = assertReady();
+        setStatus("Scanning all wallet positions for unclaimed fees…");
+        const tokenIds = await readAllFeeBearingTokenIds(address);
+
+        for (const tokenId of tokenIds) {
+          await sendAndConfirm(
+            {
+              from: address,
+              to: robinhoodChain.uniswapV3PositionManager,
+              data: buildCollectData(tokenId, address),
+            },
+            `Collecting fees (${collectedCount + 1} of ${tokenIds.length})`,
+          );
+          collectedCount++;
+        }
+
+        setStatus(collectedCount > 0 ? "All fees collected." : "No fees to collect.");
+      } catch (cause) {
+        if (collectedCount > 0) {
+          setStatus(
+            `${collectedCount} positions were collected before the process stopped.`,
+          );
+        }
+        setError(cause instanceof Error ? cause.message : "Batch fee collection failed.");
         throw cause;
       } finally {
         setIsSubmitting(false);
@@ -150,5 +262,5 @@ export function usePositionActions() {
     [address, onTargetNetwork],
   );
 
-  return { collect, close, isSubmitting, status, error, txHashes };
+  return { collect, collectAll, close, isSubmitting, status, error, txHashes };
 }

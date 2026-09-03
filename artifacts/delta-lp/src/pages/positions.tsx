@@ -1,8 +1,13 @@
 import { ArrowRight, Bot, Gauge, Plus, RefreshCw, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { Link } from "wouter";
 import { useWallet } from "@/hooks/use-wallet";
-import { useLiquidityPositions } from "@/hooks/use-liquidity-positions";
-import { shortenAddress } from "@/lib/ethereum";
+import {
+  useLiquidityPositions,
+  type LiquidityPosition,
+} from "@/hooks/use-liquidity-positions";
+import { useUniswapPool } from "@/hooks/use-uniswap-pool";
+import { usePositionActions } from "@/hooks/use-position-actions";
+import { shortenAddress, formatUnits } from "@/lib/ethereum";
 import { StatusPill, Token } from "@/components/ui/shared";
 import { robinhoodChain } from "@/config/network";
 
@@ -24,10 +29,49 @@ function tokenLabel(address: string) {
   return "TOKEN";
 }
 
+function supportsLiveRange(position: LiquidityPosition) {
+  const positionTokens = [position.token0, position.token1]
+    .map((address) => address.toLowerCase())
+    .sort();
+  const configuredTokens = [
+    robinhoodChain.token0Address,
+    robinhoodChain.token1Address,
+  ]
+    .map((address) => address.toLowerCase())
+    .sort();
+
+  return (
+    position.fee === 500 &&
+    positionTokens[0] === configuredTokens[0] &&
+    positionTokens[1] === configuredTokens[1]
+  );
+}
+
 export default function Positions() {
   const { connected, nativeBalance, onTargetNetwork, wrongNetwork } = useWallet();
   const { positions, totalCount, isLoading, error, refresh } = useLiquidityPositions();
+  const { tokens, currentTick } = useUniswapPool();
+  const { collectAll, isSubmitting: isCollecting, status: actionStatus, error: actionError } = usePositionActions();
   const hasPositions = positions.length > 0;
+
+  const earnings = positions.reduce((acc, pos) => {
+    const t0 = pos.token0.toLowerCase();
+    const t1 = pos.token1.toLowerCase();
+    acc[t0] = (acc[t0] || 0n) + BigInt(pos.tokensOwed0);
+    acc[t1] = (acc[t1] || 0n) + BigInt(pos.tokensOwed1);
+    return acc;
+  }, {} as Record<string, bigint>);
+
+  const hasEarnings = Object.values(earnings).some(v => v > 0n);
+  const handleCollectAll = async () => {
+    try {
+      await collectAll();
+    } catch {
+      // Error is handled by actionError
+    } finally {
+      await refresh();
+    }
+  };
 
   return (
     <>
@@ -62,6 +106,62 @@ export default function Positions() {
           </div>
         ))}
       </div>
+
+      {connected && onTargetNetwork && hasPositions && (
+        <section className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="card-gradient rounded-xl border border-primary/20 p-5 ring-1 ring-primary/10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-sm font-semibold text-[#f2f7f3]">Live earnings</h2>
+                <p className="mt-1 text-xs text-[#819989]">Unclaimed on-chain fees across all visible positions.</p>
+              </div>
+              <button
+                data-testid="button-collect-all"
+                onClick={() => void handleCollectAll()}
+                disabled={
+                  isCollecting ||
+                  (!hasEarnings && totalCount === positions.length)
+                }
+                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition hover:bg-[#7aeda0] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isCollecting ? <RefreshCw size={14} className="animate-spin" /> : <Bot size={14} />}
+                Collect all fees
+              </button>
+            </div>
+            
+            {hasEarnings ? (
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                {Object.entries(earnings).filter(([, val]) => val > 0n).map(([tokenAddr, amount]) => {
+                const tInfo = tokens.find(t => t.address.toLowerCase() === tokenAddr);
+                const decimals = tInfo?.decimals ?? 18;
+                const symbol = tInfo?.symbol ?? tokenLabel(tokenAddr);
+                const formatted = tInfo ? formatUnits(amount, decimals, 6) : amount.toString() + " (Raw)";
+                return (
+                  <div key={tokenAddr} data-testid={`card-earnings-${tokenAddr}`} className="flex items-center gap-3 rounded-lg border border-[#6aa4771c] bg-[#08150e] p-4">
+                    <Token symbol={symbol} tone="#9bc8a6" />
+                    <div>
+                      <div className="text-[10px] text-[#607a67]" data-testid={`text-earnings-symbol-${tokenAddr}`}>{symbol}</div>
+                      <div className="mt-1 font-mono text-lg font-medium tracking-tight text-[#c3d4c5]" data-testid={`text-earnings-amount-${tokenAddr}`}>{formatted}</div>
+                    </div>
+                  </div>
+                );
+                })}
+              </div>
+            ) : (
+              <div
+                data-testid="status-no-unclaimed-fees"
+                className="mt-5 rounded-lg border border-[#6aa4771c] bg-[#08150e] p-4 text-xs text-[#819989]"
+              >
+                {totalCount > positions.length
+                  ? "No fees are visible in the first 100 positions. Collect All will scan the remaining wallet positions."
+                  : "No unclaimed fees are currently reported by the position manager."}
+              </div>
+            )}
+            {actionStatus && <p className="mt-4 flex items-center gap-2 text-xs text-[#9dccaa]">{isCollecting && <RefreshCw size={12} className="animate-spin" />} {actionStatus}</p>}
+            {actionError && <p className="mt-4 text-xs text-[#e1aa9d]">{actionError}</p>}
+          </div>
+        </section>
+      )}
 
       {connected && onTargetNetwork && (
         <section className="mb-6">
@@ -100,6 +200,7 @@ export default function Positions() {
                 <Link
                   key={position.tokenId}
                   href={`/positions/${position.tokenId}`}
+                  data-testid={`link-position-${position.tokenId}`}
                   className="card-gradient rounded-xl border p-5 transition hover:border-[#5ee08a55] focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -124,22 +225,59 @@ export default function Positions() {
                     </div>
                   </div>
 
-                  <div className="mt-5 grid grid-cols-3 gap-3 border-t border-[#6aa47718] pt-4">
-                    <div>
-                      <p className="text-[10px] text-[#607a67]">Fee tier</p>
-                      <p className="mt-1 text-xs text-[#c3d4c5]">{formatFee(position.fee)}</p>
+                  <div className="mt-5 border-t border-[#6aa47718] pt-4">
+                    <div className="mb-4">
+                      <div className="mb-2 flex items-center justify-between text-[10px]">
+                        <span className="text-[#607a67]">Current range</span>
+                        {currentTick !== null && supportsLiveRange(position) ? (
+                          currentTick >= position.tickLower && currentTick <= position.tickUpper ? (
+                            <span data-testid={`status-range-${position.tokenId}`} className="flex items-center gap-1.5 font-medium text-primary">
+                              <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(94,224,138,0.6)] animate-pulse" />
+                              In range
+                            </span>
+                          ) : (
+                            <span data-testid={`status-range-${position.tokenId}`} className="flex items-center gap-1.5 font-medium text-destructive-foreground">
+                              <span className="h-1.5 w-1.5 rounded-full bg-destructive-foreground" />
+                              Out of range
+                            </span>
+                          )
+                        ) : (
+                          <span data-testid={`status-range-${position.tokenId}`} className="text-[#607a67]">Unavailable</span>
+                        )}
+                      </div>
+                      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-[#08150e] ring-1 ring-inset ring-[#6aa47718]">
+                        <div className="absolute inset-y-0 left-1/4 right-1/4 rounded-full bg-[#1b3b27]" />
+                        {currentTick !== null && supportsLiveRange(position) && (
+                          <div 
+                            data-testid={`indicator-tick-${position.tokenId}`}
+                            className={`absolute top-1/2 -mt-[3px] h-1.5 w-1.5 rounded-full ${currentTick >= position.tickLower && currentTick <= position.tickUpper ? "bg-primary shadow-[0_0_8px_rgba(94,224,138,0.8)]" : "bg-[#8ea596]"}`}
+                            style={{ 
+                              left: currentTick < position.tickLower 
+                                ? "10%" 
+                                : currentTick > position.tickUpper 
+                                  ? "90%" 
+                                  : `${25 + ((currentTick - position.tickLower) / Math.max(1, position.tickUpper - position.tickLower)) * 50}%` 
+                            }}
+                          />
+                        )}
+                      </div>
+                      <div className="mt-1.5 flex justify-between text-[9px] font-mono text-[#55705d]">
+                        <span>{position.tickLower}</span>
+                        <span>{position.tickUpper}</span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-[#607a67]">Tick range</p>
-                      <p className="mt-1 text-xs text-[#c3d4c5]">
-                        {position.tickLower} → {position.tickUpper}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-[#607a67]">Liquidity</p>
-                      <p className="mt-1 font-mono text-xs text-[#c3d4c5]">
-                        {formatLiquidity(position.liquidity)}
-                      </p>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] text-[#607a67]">Fee tier</p>
+                        <p className="mt-1 text-xs text-[#c3d4c5]">{formatFee(position.fee)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-[#607a67]">Liquidity</p>
+                        <p className="mt-1 font-mono text-xs text-[#c3d4c5]">
+                          {formatLiquidity(position.liquidity)}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </Link>
