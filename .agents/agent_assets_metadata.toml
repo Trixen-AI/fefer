@@ -1,0 +1,72 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "gLMGkiiwe2xPMQMiKItCZ"
+uri = "file://attached_assets/generated_images/liqora-logo-01-wave-l.png"
+type = "image"
+title = "wave L logo"
+description = "Professional minimalist Liqora logo PNG with transparent background."
+logical_id = "0103c162-b315-445a-a1a9-e675a88bb764"
+content_hash = "sha256:6e109e49cf2ce124b24756e6b9ecf0bb91d0db86ab834b65037833b71827ca5e"
+size = 662618
+mtime_ms = 1788450119026
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/0103c162-b315-445a-a1a9-e675a88bb764/ec5b56c8-a241-4e76-a8c1-4899b8f1662f"
+storage_version_token = "1788450123421353"
+content_type = "image/png"
+
+[[outputs]]
+id = "Ue4rnh6EX4HzwnjSFqCwx"
+uri = "file://attached_assets/generated_images/liqora-logo-02-delta-shield.png"
+type = "image"
+title = "delta shield logo"
+description = "Professional minimalist Liqora logo PNG with transparent background."
+logical_id = "f6011e6e-bc69-4819-9d26-cd2fbc886858"
+content_hash = "sha256:0bae8db36f9d71e1ae9299984555bd18763c630a6a326b13730f29707011038a"
+size = 748449
+mtime_ms = 1788450122250
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/f6011e6e-bc69-4819-9d26-cd2fbc886858/d04c5a22-62ab-4abf-840c-91e34d6a7936"
+storage_version_token = "1788450124715126"
+content_type = "image/png"
+
+[[outputs]]
+id = "76_HTY9Qu1iL3gdwnP5EE"
+uri = "file://attached_assets/generated_images/liqora-logo-03-pool-rings.png"
+type = "image"
+title = "pool rings logo"
+description = "Professional minimalist Liqora logo PNG with transparent background."
+logical_id = "3fda2dc0-7fca-40c2-a44e-f1d5627de1ac"
+content_hash = "sha256:59c22489769aa1604cd88506b8f131a3ca4d94e05745509bf372879829c51647"
+size = 748930
+mtime_ms = 1788450121858
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/3fda2dc0-7fca-40c2-a44e-f1d5627de1ac/e4839c06-78fd-42f8-b23a-343b25db1657"
+storage_version_token = "1788450125986069"
+content_type = "image/png"
+
+[[outputs]]
+id = "GaS2xBbbxClHLMFAD-739"
+uri = "file://attached_assets/generated_images/liqora-logo-04-network-flow.png"
+type = "image"
+title = "network flow logo"
+description = "Professional minimalist Liqora logo PNG with transparent background."
+logical_id = "5e454810-ad4c-4652-97a6-a1821cfe7669"
+content_hash = "sha256:0d915cc695919d7e2fc59be3932b15159927ea8de5ea3d55a4701bee8999e390"
+size = 674876
+mtime_ms = 1788450119794
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/5e454810-ad4c-4652-97a6-a1821cfe7669/0ebb886f-6d91-4af4-832f-29eea2e13039"
+storage_version_token = "1788450127275773"
+content_type = "image/png"
+
+[[outputs]]
+id = "HWHSJHq1zJh1yiBbESOdT"
+uri = "file://attached_assets/generated_images/liqora-logo-05-delta-drop.png"
+type = "image"
+title = "delta drop logo"
+description = "Professional minimalist Liqora logo PNG with transparent background."
+logical_id = "49160169-4a7f-4ad8-a4af-a280f7c3dec3"
+content_hash = "sha256:f15161b3d365aec45e6f29447f6f0e028fce0a1f0c1c15b71afb974895100db5"
+size = 702183
+mtime_ms = 1788450117754
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/49160169-4a7f-4ad8-a4af-a280f7c3dec3/381f6330-8003-4d6c-a3c4-296dbfa4007b"
+storage_version_token = "1788450128546459"
+content_type = "image/png"
