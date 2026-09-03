@@ -25,7 +25,17 @@ const navLinks = [
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
-  const { connected, connect, disconnect } = useWallet();
+  const {
+    connected,
+    address,
+    wrongNetwork,
+    isConnecting,
+    error,
+    networkName,
+    connect,
+    disconnect,
+    switchNetwork,
+  } = useWallet();
   const [mobileNav, setMobileNav] = useState(false);
 
   const isCurrent = (path: string) => {
@@ -87,19 +97,39 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </div>
             <div className="hidden items-center gap-2 text-xs text-[#77907d] sm:flex">
               <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-primary' : 'bg-[#536c5a]'}`} /> 
-              Production environment <span className="text-[#3f5947]">/</span> 
-              <span className={connected ? "text-[#a0b7a5]" : "text-[#77907d]"}>{connected ? "Wallet connected" : "No wallet connected"}</span>
+                Production environment <span className="text-[#3f5947]">/</span>
+                <span className={connected ? "text-[#a0b7a5]" : "text-[#77907d]"}>
+                  {connected
+                    ? wrongNetwork
+                      ? "Wrong network"
+                      : `Wallet ${address?.slice(0, 6)}…${address?.slice(-4)}`
+                    : "No wallet connected"}
+                </span>
             </div>
             <div className="ml-auto flex items-center gap-2 sm:gap-3">
-              <button className="flex items-center gap-2 rounded-md border border-[#6aa47727] bg-[#0d2115] px-3 py-2 text-xs text-[#a9bdad] hover:border-[#5ee08a55]">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Ethereum <ChevronDown size={13} />
+              <button
+                onClick={wrongNetwork ? () => void switchNetwork() : undefined}
+                disabled={!wrongNetwork}
+                className={`flex items-center gap-2 rounded-md border border-[#6aa47727] bg-[#0d2115] px-3 py-2 text-xs text-[#a9bdad] hover:border-[#5ee08a55] ${wrongNetwork ? "cursor-pointer text-[#e6c489]" : "cursor-default"}`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${wrongNetwork ? "bg-[#c99a57]" : "bg-primary"}`} />
+                {wrongNetwork ? "Switch network" : networkName} <ChevronDown size={13} />
               </button>
-              <button onClick={connected ? disconnect : connect} className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition ${connected ? "border border-[#6aa47727] bg-[#0d2115] text-[#a9bdad] hover:border-[#5ee08a55]" : "bg-primary text-primary-foreground hover:bg-[#7aeda0]"}`}>
+              <button
+                onClick={connected ? disconnect : () => void connect()}
+                disabled={isConnecting}
+                className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition ${connected ? "border border-[#6aa47727] bg-[#0d2115] text-[#a9bdad] hover:border-[#5ee08a55]" : "bg-primary text-primary-foreground hover:bg-[#7aeda0]"}`}
+              >
                 <Wallet size={14} />
-                {connected ? "Disconnect" : "Connect wallet"}
+                {isConnecting ? "Connecting…" : connected ? "Disconnect" : "Connect wallet"}
               </button>
             </div>
           </header>
+          {error && (
+            <div className="border-b border-[#9a5b5038] bg-[#3a211c] px-4 py-2 text-center text-xs text-[#e6b7ab] sm:px-8">
+              {error}
+            </div>
+          )}
 
           {/* Mobile Nav Dropdown */}
           {mobileNav && (

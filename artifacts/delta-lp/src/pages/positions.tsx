@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useWallet } from "@/hooks/use-wallet";
 
 export default function Positions() {
-  const { connected } = useWallet();
+  const { connected, onTargetNetwork, wrongNetwork } = useWallet();
 
   return (
     <>
@@ -22,8 +22,8 @@ export default function Positions() {
 
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         {[
-          ["Total value", "—", connected ? "Loading balances..." : "Wallet not connected"],
-          ["Active positions", "—", connected ? "Fetching on-chain data..." : "No positions detected"],
+          ["Total value", "—", !connected ? "Wallet not connected" : wrongNetwork ? "Switch to Robinhood Chain" : "Loading balances..."],
+          ["Active positions", "—", !connected ? "No positions detected" : wrongNetwork ? "Wrong network" : "Fetching on-chain data..."],
           ["Keeper coverage", "—", "Not configured"]
         ].map(([title, value, subtitle], i) => (
           <div key={title} className="card-gradient rounded-xl border p-4">
@@ -53,7 +53,7 @@ export default function Positions() {
               Your liquidity, under a watchful keeper.
             </h2>
             <p className="mt-3 max-w-md text-sm leading-6 text-[#8ea596]">
-              {connected ? "You have no active liquidity positions. Start by defining a concentrated-liquidity range." : "Connect a wallet to inspect your positions, or start by defining a concentrated-liquidity range."}
+              {!connected ? "Connect a wallet to inspect your positions, or start by defining a concentrated-liquidity range." : !onTargetNetwork ? "Switch your wallet to Robinhood Chain to inspect your positions." : "You have no active liquidity positions. Start by defining a concentrated-liquidity range."}
             </p>
             <Link href="/create" className="mt-7 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-[#7aeda0] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
               <Plus size={16} /> Create an LP position <ArrowRight size={15} />

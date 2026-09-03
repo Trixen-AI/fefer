@@ -6,7 +6,7 @@ import { Safety, Token } from "@/components/ui/shared";
 
 export default function CreateLP() {
   const [step, setStep] = useState(1);
-  const { connected } = useWallet();
+  const { connected, onTargetNetwork, wrongNetwork } = useWallet();
 
   return (
     <div className="delta-rise max-w-4xl">
@@ -43,7 +43,7 @@ export default function CreateLP() {
           <div className="card-gradient rounded-xl border p-5">
             <h3 className="text-sm font-semibold">Choose token pair</h3>
             <p className="mt-1 text-xs text-[#718a77]">
-              {connected ? "Loading supported pairs from Uniswap V3..." : "Token balances appear once a wallet is connected."}
+              {!connected ? "Token balances appear once a wallet is connected." : !onTargetNetwork ? "Switch to Robinhood Chain to load supported pairs." : "Loading supported pairs from Uniswap V3..."}
             </p>
             
             <div className="mt-5 grid grid-cols-2 gap-3">
@@ -52,14 +52,14 @@ export default function CreateLP() {
                   <Token symbol="ETH" tone="#9bc8a6" />
                   <span className="text-sm">ETH</span>
                 </div>
-                <div className="text-xs text-[#5e7765]">{connected ? "—" : "Balance unavailable"}</div>
+                <div className="text-xs text-[#5e7765]">{connected && onTargetNetwork ? "—" : "Balance unavailable"}</div>
               </button>
               <button className="rounded-lg border border-[#6aa47727] bg-[#08150e] p-4 text-left hover:border-primary/50 focus:outline-none focus:border-primary transition-colors">
                 <div className="mb-5 flex items-center gap-2">
                   <Token symbol="USDC" tone="#8db6d8" />
                   <span className="text-sm">USDC</span>
                 </div>
-                <div className="text-xs text-[#5e7765]">{connected ? "—" : "Balance unavailable"}</div>
+                <div className="text-xs text-[#5e7765]">{connected && onTargetNetwork ? "—" : "Balance unavailable"}</div>
               </button>
             </div>
             
@@ -132,7 +132,7 @@ export default function CreateLP() {
                 ["Pair", "ETH / USDC"],
                 ["Fee tier", "0.05%"],
                 ["Price range", "Unavailable"],
-                ["Deposit", connected ? "Awaiting input" : "Wallet not connected"]
+                ["Deposit", !connected ? "Wallet not connected" : wrongNetwork ? "Wrong network" : "Awaiting input"]
               ].map(x => (
                 <div key={x[0]} className="flex justify-between py-3">
                   <span className="text-[#718a77]">{x[0]}</span>

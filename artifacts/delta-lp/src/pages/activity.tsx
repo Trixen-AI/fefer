@@ -3,7 +3,7 @@ import { useWallet } from "@/hooks/use-wallet";
 import { StatusPill } from "@/components/ui/shared";
 
 export default function ActivityView() {
-  const { connected } = useWallet();
+  const { connected, onTargetNetwork, wrongNetwork } = useWallet();
 
   return (
     <div className="delta-rise">
@@ -19,10 +19,10 @@ export default function ActivityView() {
         </div>
         <h2 className="text-base font-semibold">No activity to show</h2>
         <p className="mt-2 max-w-sm text-xs leading-5 text-[#78917e]">
-          {connected ? "No historical transactions found for this address on the current network." : "Connect a wallet to load your on-chain activity."}
+          {!connected ? "Connect a wallet to load your on-chain activity." : wrongNetwork ? "Switch to Robinhood Chain to load activity for this address." : "No historical transactions found for this address on the current network."}
         </p>
         <span className="mt-5">
-          <StatusPill>{connected ? "Up to date" : "Wallet not connected"}</StatusPill>
+          <StatusPill>{!connected ? "Wallet not connected" : !onTargetNetwork ? "Wrong network" : "Up to date"}</StatusPill>
         </span>
       </div>
     </div>
