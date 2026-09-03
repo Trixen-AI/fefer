@@ -5,6 +5,7 @@ import { useWallet } from "@/hooks/use-wallet";
 import { useUniswapPool } from "@/hooks/use-uniswap-pool";
 import { formatUnits, parseUnits, shortenAddress } from "@/lib/ethereum";
 import { Safety, StatusPill, Token } from "@/components/ui/shared";
+import { robinhoodChain } from "@/config/network";
 
 const MIN_TICK = -887_270;
 const MAX_TICK = 887_270;
@@ -147,23 +148,40 @@ export default function CreateLP() {
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
-              {[token0, token1].map((token, index) => (
-                <div key={token?.address ?? index} className="rounded-lg border border-[#6aa47727] bg-[#08150e] p-4 text-left">
-                  <div className="mb-5 flex items-center gap-2">
-                    <Token symbol={token?.symbol ?? (index === 0 ? "WETH" : "USDG")} tone={index === 0 ? "#9bc8a6" : "#8db6d8"} />
-                    <span className="text-sm">{token?.symbol ?? (index === 0 ? "WETH" : "USDG")}</span>
+              {[token0, token1].map((token, index) => {
+                const fallbackAddress =
+                  index === 0
+                    ? robinhoodChain.token0Address
+                    : robinhoodChain.token1Address;
+                const label = token?.symbol ?? (index === 0 ? "WETH" : "USDG");
+                const address = token?.address ?? fallbackAddress;
+                return (
+                  <div key={address || index} className="rounded-lg border border-[#6aa47727] bg-[#08150e] p-4 text-left">
+                    <div className="mb-4 flex items-center gap-2">
+                      <Token symbol={label} tone={index === 0 ? "#9bc8a6" : "#8db6d8"} />
+                      <span className="text-sm">{label}</span>
+                    </div>
+                    <div className="text-xs text-[#8ba38f]">
+                      {token
+                        ? `${formatUnits(token.balance, token.decimals)} available`
+                        : !connected
+                          ? "Connect wallet to read balance"
+                          : isLoading
+                            ? "Reading token…"
+                            : "Token data unavailable"}
+                    </div>
+                    <a
+                      href={`${robinhoodChain.explorerUrl}/address/${address}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={address}
+                      className="mt-3 block truncate font-mono text-[10px] text-[#78c98b] underline decoration-[#78c98b55] underline-offset-2"
+                    >
+                      Contract {shortenAddress(address)}
+                    </a>
                   </div>
-                  <div className="text-xs text-[#8ba38f]">
-                     {token
-                       ? `${formatUnits(token.balance, token.decimals)} available`
-                       : !connected
-                         ? "Connect wallet to read balance"
-                         : isLoading
-                           ? "Reading token…"
-                           : "Token data unavailable"}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <label className="mt-5 block text-xs text-[#8ea596]">Fee tier</label>
