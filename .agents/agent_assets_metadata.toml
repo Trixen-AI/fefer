@@ -210,3 +210,17 @@ mtime_ms = 1788477431745
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/af1201b6-1f75-46ba-8300-2e3cce760b29/7448a9b2-7cde-4aea-953e-879ca0f885dd"
 storage_version_token = "1788477438914162"
 content_type = "image/png"
+
+[[outputs]]
+id = "W0aeVMROCnwViGCG6JTsY"
+uri = "file://attached_assets/generated_images/liqora-logo-final.png"
+type = "image"
+title = "Liqora Final Logo"
+description = "Selected professional liquid ribbon logo, 1024×1024 PNG with transparent background."
+logical_id = "f5a4f720-c2f6-4bb1-81b0-69eaa188f639"
+content_hash = "sha256:971ade97ffc373e6b1fa51fe1c6e62773395c28f9908d62dff2d35b1a11aebef"
+size = 777015
+mtime_ms = 1788478455985
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/f5a4f720-c2f6-4bb1-81b0-69eaa188f639/1b86be6f-d238-47f9-985c-9801d80d35e4"
+storage_version_token = "1788478465923893"
+content_type = "image/png"
