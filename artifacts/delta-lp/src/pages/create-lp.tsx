@@ -154,7 +154,13 @@ export default function CreateLP() {
                     <span className="text-sm">{token?.symbol ?? (index === 0 ? "WETH" : "USDG")}</span>
                   </div>
                   <div className="text-xs text-[#8ba38f]">
-                    {token ? `${formatUnits(token.balance, token.decimals)} available` : "Reading token…"}
+                     {token
+                       ? `${formatUnits(token.balance, token.decimals)} available`
+                       : !connected
+                         ? "Connect wallet to read balance"
+                         : isLoading
+                           ? "Reading token…"
+                           : "Token data unavailable"}
                   </div>
                 </div>
               ))}

@@ -9,6 +9,7 @@ import {
   encodeTransactionData,
   getEthereumProvider,
   parseUnits,
+  readContract,
   readRpcContract,
   sendTransaction,
   simulateRpcTransaction,
@@ -77,6 +78,23 @@ function readUintResponse(data: string) {
   return decodeUint256(word);
 }
 
+async function readPoolContract(to: string, data: string) {
+  const provider = getEthereumProvider();
+  if (provider) {
+    try {
+      return await Promise.race([
+        readContract(provider, to, data),
+        new Promise<string>((_, reject) =>
+          window.setTimeout(() => reject(new Error("Wallet RPC timed out.")), 6_000),
+        ),
+      ]);
+    } catch {
+      // Fall through to the official public RPC when the wallet provider is unavailable.
+    }
+  }
+  return readRpcContract(robinhoodChain.rpcUrl, to, data);
+}
+
 export function useUniswapPool() {
   const { address, onTargetNetwork } = useWallet();
   const [poolAddress, setPoolAddress] = useState<string | null>(null);
@@ -107,18 +125,9 @@ export function useUniswapPool() {
         addresses.map(async (tokenAddress) => {
           const [symbolResponse, decimalsResponse, balanceResponse] =
             await Promise.all([
-              readRpcContract(
-                robinhoodChain.rpcUrl,
-                tokenAddress,
-                SYMBOL_SELECTOR,
-              ),
-              readRpcContract(
-                robinhoodChain.rpcUrl,
-                tokenAddress,
-                DECIMALS_SELECTOR,
-              ),
-              readRpcContract(
-                robinhoodChain.rpcUrl,
+              readPoolContract(tokenAddress, SYMBOL_SELECTOR),
+              readPoolContract(tokenAddress, DECIMALS_SELECTOR),
+              readPoolContract(
                 tokenAddress,
                 `${TOKEN_BALANCE_SELECTOR}${encodeAddress(address)}`,
               ),
@@ -135,8 +144,7 @@ export function useUniswapPool() {
       const [token0, token1] = tokenResponses;
       if (!token0 || !token1) throw new Error("Pair tokens are unavailable.");
       const feeData = encodeUint256(500);
-      const poolResponse = await readRpcContract(
-        robinhoodChain.rpcUrl,
+      const poolResponse = await readPoolContract(
         robinhoodChain.uniswapV3Factory,
         `${GET_POOL_SELECTOR}${encodeAddress(token0.address)}${encodeAddress(token1.address)}${feeData}`,
       );
@@ -155,15 +163,13 @@ export function useUniswapPool() {
 
       const allowanceResponses = await Promise.all(
         tokenResponses.map((token) =>
-          readRpcContract(
-            robinhoodChain.rpcUrl,
+          readPoolContract(
             token.address,
             `${ALLOWANCE_SELECTOR}${encodeAddress(address)}${encodeAddress(robinhoodChain.uniswapV3PositionManager)}`,
           ),
         ),
       );
-      const slot0Response = await readRpcContract(
-        robinhoodChain.rpcUrl,
+      const slot0Response = await readPoolContract(
         nextPool,
         SLOT0_SELECTOR,
       );

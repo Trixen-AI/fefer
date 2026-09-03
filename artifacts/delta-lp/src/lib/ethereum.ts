@@ -45,10 +45,10 @@ export async function readRpcContract(
   data: string,
 ) {
   let lastError: Error | null = null;
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
     rpcRequestId += 1;
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 25_000);
+    const timeout = window.setTimeout(() => controller.abort(), 8_000);
 
     try {
       const response = await fetch(rpcUrl, {
@@ -91,7 +91,7 @@ export async function readRpcContract(
           : cause instanceof Error
             ? cause
             : new Error("RPC request failed.");
-      if (attempt < 2) {
+      if (attempt < 1) {
         await new Promise((resolve) =>
           window.setTimeout(resolve, 700 * 2 ** attempt),
         );
