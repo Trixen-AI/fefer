@@ -44,50 +44,66 @@ export async function readRpcContract(
   to: string,
   data: string,
 ) {
-  rpcRequestId += 1;
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 15_000);
-  let response: Response;
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    rpcRequestId += 1;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 25_000);
 
-  try {
-    response = await fetch(rpcUrl, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      signal: controller.signal,
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: rpcRequestId,
-        method: "eth_call",
-        params: [{ to, data }, "latest"],
-      }),
-    });
-  } catch (cause) {
-    if (cause instanceof DOMException && cause.name === "AbortError") {
-      throw new Error("RPC request timed out.");
+    try {
+      const response = await fetch(rpcUrl, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: rpcRequestId,
+          method: "eth_call",
+          params: [{ to, data }, "latest"],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`RPC request failed with status ${response.status}.`);
+      }
+
+      const payload = (await response.json()) as {
+        result?: unknown;
+        error?: { message?: string };
+      };
+
+      if (payload.error) {
+        throw new Error(payload.error.message || "RPC contract call failed.");
+      }
+
+      if (
+        typeof payload.result !== "string" ||
+        !payload.result.startsWith("0x")
+      ) {
+        throw new Error("RPC returned an invalid contract response.");
+      }
+
+      return payload.result;
+    } catch (cause) {
+      lastError =
+        cause instanceof DOMException && cause.name === "AbortError"
+          ? new Error("RPC request timed out.")
+          : cause instanceof Error
+            ? cause
+            : new Error("RPC request failed.");
+      if (attempt < 2) {
+        await new Promise((resolve) =>
+          window.setTimeout(resolve, 700 * 2 ** attempt),
+        );
+      }
+    } finally {
+      window.clearTimeout(timeout);
     }
-    throw cause;
-  } finally {
-    window.clearTimeout(timeout);
   }
 
-  if (!response.ok) {
-    throw new Error(`RPC request failed with status ${response.status}.`);
-  }
-
-  const payload = (await response.json()) as {
-    result?: unknown;
-    error?: { message?: string };
-  };
-
-  if (payload.error) {
-    throw new Error(payload.error.message || "RPC contract call failed.");
-  }
-
-  if (typeof payload.result !== "string" || !payload.result.startsWith("0x")) {
-    throw new Error("RPC returned an invalid contract response.");
-  }
-
-  return payload.result;
+  throw new Error(
+    `${lastError?.message || "RPC request failed."} Please retry in a moment.`,
+  );
 }
 
 export async function simulateRpcTransaction(
