@@ -16,6 +16,7 @@ import {
 } from "@/lib/ethereum";
 import { isUniswapV3Configured, robinhoodChain } from "@/config/network";
 import { useWallet } from "@/hooks/use-wallet";
+import { recordActivity } from "@/lib/activity-store";
 
 const SYMBOL_SELECTOR = "0x95d89b41";
 const DECIMALS_SELECTOR = "0x313ce567";
@@ -212,6 +213,12 @@ export function useUniswapPool() {
         });
         setTxHash(hash);
         await waitForTransactionReceipt(provider, hash);
+        recordActivity({
+          address,
+          hash,
+          label: `Approve ${token.symbol}`,
+          contract: token.address,
+        });
         await refresh();
         return hash;
       } catch (cause) {
@@ -308,6 +315,12 @@ export function useUniswapPool() {
         });
         setTxHash(hash);
         await waitForTransactionReceipt(provider, hash);
+        recordActivity({
+          address,
+          hash,
+          label: `Mint ${token0.symbol} / ${token1.symbol} position`,
+          contract: robinhoodChain.uniswapV3PositionManager,
+        });
         await refresh();
         return hash;
       } catch (cause) {

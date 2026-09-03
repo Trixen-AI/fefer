@@ -95,16 +95,29 @@ export async function simulateRpcTransaction(
   transaction: { from: string; to: string; data: string; value?: string },
 ) {
   rpcRequestId += 1;
-  const response = await fetch(rpcUrl, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: rpcRequestId,
-      method: "eth_call",
-      params: [transaction, "latest"],
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 15_000);
+  let response: Response;
+  try {
+    response = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: rpcRequestId,
+        method: "eth_call",
+        params: [transaction, "latest"],
+      }),
+    });
+  } catch (cause) {
+    if (cause instanceof DOMException && cause.name === "AbortError") {
+      throw new Error("Transaction simulation timed out.");
+    }
+    throw cause;
+  } finally {
+    window.clearTimeout(timeout);
+  }
   const payload = (await response.json()) as {
     result?: unknown;
     error?: { message?: string };
