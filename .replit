@@ -18,3 +18,9 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+EXIT_KEEPER_ADDRESS = "0x62534e5d7f14ad180bb8d5eeed9e4433aa56132c"
+VITE_EXIT_KEEPER_ADDRESS = "0x62534e5d7f14ad180bb8d5eeed9e4433aa56132c"

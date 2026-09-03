@@ -79,16 +79,18 @@ function loadConfig() {
   const privateKey = process.env["KEEPER_PRIVATE_KEY"];
   const contractAddress = process.env["EXIT_KEEPER_ADDRESS"];
   const rpcUrl = process.env["ROBINHOOD_RPC_URL"] || DEFAULT_RPC_URL;
-  if (
-    !privateKey ||
-    !/^0x[a-fA-F0-9]{64}$/.test(privateKey) ||
-    !contractAddress ||
-    !isAddress(contractAddress)
-  ) {
+  if (!privateKey || !/^0x[a-fA-F0-9]{64}$/.test(privateKey)) {
     return null;
   }
   const account = privateKeyToAccount(privateKey as Hex);
-  return { account, contractAddress: contractAddress as Address, rpcUrl };
+  return {
+    account,
+    contractAddress:
+      contractAddress && isAddress(contractAddress)
+        ? (contractAddress as Address)
+        : null,
+    rpcUrl,
+  };
 }
 
 export function getKeeperStatus(): KeeperStatus {
@@ -103,8 +105,15 @@ async function pollKeeper() {
     if (!config) {
       status.configured = false;
       status.running = false;
-      status.lastError =
-        "KEEPER_PRIVATE_KEY or EXIT_KEEPER_ADDRESS is not configured.";
+      status.lastError = "KEEPER_PRIVATE_KEY is missing or invalid.";
+      return;
+    }
+    status.operatorAddress = config.account.address;
+    status.contractAddress = config.contractAddress;
+    if (!config.contractAddress) {
+      status.configured = false;
+      status.running = false;
+      status.lastError = "EXIT_KEEPER_ADDRESS is not configured.";
       return;
     }
 
@@ -126,8 +135,6 @@ async function pollKeeper() {
 
     status.configured = true;
     status.running = true;
-    status.operatorAddress = config.account.address;
-    status.contractAddress = config.contractAddress;
     status.lastError = null;
 
     const count = await publicClient.readContract({
