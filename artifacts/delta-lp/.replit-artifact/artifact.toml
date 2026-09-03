@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Delta LP"
+description = "A premium Web3 interface for creating concentrated liquidity positions and configuring automated take-profit exits on Robinhood Chain."
+version = "1.0.0"
+id = "artifacts/delta-lp"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25278
+
+[services.development]
+run = "pnpm --filter @workspace/delta-lp run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/delta-lp", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/delta-lp/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25278"
+BASE_PATH = "/"
