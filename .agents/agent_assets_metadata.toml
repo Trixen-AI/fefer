@@ -70,3 +70,73 @@ mtime_ms = 1788450117754
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/49160169-4a7f-4ad8-a4af-a280f7c3dec3/381f6330-8003-4d6c-a3c4-296dbfa4007b"
 storage_version_token = "1788450128546459"
 content_type = "image/png"
+
+[[outputs]]
+id = "fUKGG70PRF2GdgsgSiA_L"
+uri = "file://attached_assets/generated_images/liqora-liquid-logo-01-folded-drop.png"
+type = "image"
+title = "Liqora Liquid Logo 1"
+description = "folded liquid drop"
+logical_id = "9fb39ca5-3511-49b7-b562-42dae8cfc729"
+content_hash = "sha256:585641228c6183ef4becec6b9a5e4157081816077842cc1f5cb6e935ef1134aa"
+size = 657717
+mtime_ms = 1788477189598
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/9fb39ca5-3511-49b7-b562-42dae8cfc729/89bca0f5-b918-4cf9-bc4f-e017be8a0613"
+storage_version_token = "1788477195440313"
+content_type = "image/png"
+
+[[outputs]]
+id = "DyotpDBXbOnrHY-JemIPB"
+uri = "file://attached_assets/generated_images/liqora-liquid-logo-02-orbit-pool.png"
+type = "image"
+title = "Liqora Liquid Logo 2"
+description = "orbiting liquid pool"
+logical_id = "22ad8a47-3eae-4671-847e-f9e152512da4"
+content_hash = "sha256:fc7d3a4a032ec981ef745623a3b8b2b8f023c64b749afeeb33f3f9fc7480def0"
+size = 755441
+mtime_ms = 1788477193446
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/22ad8a47-3eae-4671-847e-f9e152512da4/90d84143-da53-4e9a-8891-ab938cb306a9"
+storage_version_token = "1788477196718678"
+content_type = "image/png"
+
+[[outputs]]
+id = "f-O56dDCiY9wgibeDov7L"
+uri = "file://attached_assets/generated_images/liqora-liquid-logo-03-rising-wave.png"
+type = "image"
+title = "Liqora Liquid Logo 3"
+description = "rising liquid wave"
+logical_id = "47b495a0-1f96-4ca9-b70c-3c661b05944a"
+content_hash = "sha256:f5468bf47ed2f75a21c647ee116d7fb72f9359fb7d7e0763d9fa358b4520cc07"
+size = 719926
+mtime_ms = 1788477191390
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/47b495a0-1f96-4ca9-b70c-3c661b05944a/afde80b1-99da-4932-8057-77d5f664ac04"
+storage_version_token = "1788477197958461"
+content_type = "image/png"
+
+[[outputs]]
+id = "AOb7fB8k34UHNfGJZTvzN"
+uri = "file://attached_assets/generated_images/liqora-liquid-logo-04-fluid-cell.png"
+type = "image"
+title = "Liqora Liquid Logo 4"
+description = "fluid liquidity cell"
+logical_id = "58537b77-ff6b-4697-b48b-edb2ed463272"
+content_hash = "sha256:9a9299515054202c66d25b46722842951fa5ffd15b5c6816e1cd959ae4726338"
+size = 770277
+mtime_ms = 1788477190750
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/58537b77-ff6b-4697-b48b-edb2ed463272/9f174110-f0fe-40fe-8782-f7e3cc938e2f"
+storage_version_token = "1788477199162503"
+content_type = "image/png"
+
+[[outputs]]
+id = "5H8-wapAnoFbOgZDbVAvo"
+uri = "file://attached_assets/generated_images/liqora-liquid-logo-05-infinite-flow.png"
+type = "image"
+title = "Liqora Liquid Logo 5"
+description = "infinite liquid flow"
+logical_id = "67b74a5a-b4d6-4fd0-b6fa-eb8fc3ff79a7"
+content_hash = "sha256:7543f2ec60bc1add0c7cd69a8fc707376573c77ffde9deae31c1a43e2dc16825"
+size = 729966
+mtime_ms = 1788477191582
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/67b74a5a-b4d6-4fd0-b6fa-eb8fc3ff79a7/98baff43-422a-4631-b951-2e69a248eab8"
+storage_version_token = "1788477200399818"
+content_type = "image/png"
