@@ -1,9 +1,16 @@
 import { Link, useParams } from "wouter";
 import { ArrowLeft, Zap } from "lucide-react";
 import { Token, StatusPill } from "@/components/ui/shared";
+import { useLiquidityPositions } from "@/hooks/use-liquidity-positions";
+import { useWallet } from "@/hooks/use-wallet";
+import { shortenAddress } from "@/lib/ethereum";
 
 export default function PositionDetail() {
   const { id } = useParams();
+  const { connected, onTargetNetwork } = useWallet();
+  const { positions, isLoading, error } = useLiquidityPositions();
+  const position = positions.find((item) => item.tokenId === id);
+  const positionReady = connected && onTargetNetwork && position;
   
   return (
     <div className="delta-rise">
@@ -17,28 +24,62 @@ export default function PositionDetail() {
             Position <span className="text-[#3e5a46]">/</span> {id || "Unknown"}
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex -space-x-2">
-              <Token symbol="ETH" tone="#9bc8a6"/>
-              <Token symbol="USDC" tone="#8db6d8"/>
+             <div className="flex -space-x-2">
+               <Token symbol="0" tone="#9bc8a6"/>
+               <Token symbol="1" tone="#8db6d8"/>
             </div>
-            <h1 className="text-3xl font-semibold tracking-[-.04em]">ETH / USDC</h1>
+             <h1 className="text-xl font-semibold tracking-[-.03em] sm:text-2xl">
+               {positionReady
+                 ? `${shortenAddress(position.token0)} / ${shortenAddress(position.token1)}`
+                 : `Position #${id || "Unknown"}`}
+             </h1>
           </div>
-          <p className="mt-2 text-sm text-[#819989]">Real position data unavailable</p>
+           <p className="mt-2 text-sm text-[#819989]">
+             {isLoading
+               ? "Reading position from Robinhood Chain…"
+               : error
+                 ? error
+                 : positionReady
+                   ? `Fee tier ${position.fee / 10_000}%`
+                   : "Position data unavailable"}
+           </p>
         </div>
-        <StatusPill>Data pending</StatusPill>
+         <StatusPill green={Boolean(positionReady && BigInt(position.liquidity) > 0n)}>
+           {positionReady
+             ? BigInt(position.liquidity) > 0n
+               ? "Active liquidity"
+               : "No liquidity"
+             : "Data pending"}
+         </StatusPill>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
         <div className="card-gradient rounded-xl border p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold">Price range</h2>
-            <StatusPill>Not configured</StatusPill>
+             <StatusPill>{positionReady ? "On-chain ticks" : "Not available"}</StatusPill>
           </div>
           <div className="mt-6 h-52 rounded-lg border border-[#6aa47720] bg-[#08150e] p-5">
-            <div className="flex h-full items-center justify-center text-xs text-[#5e7765]">
-              Price data unavailable
+             <div className="flex h-full items-center justify-center text-center text-xs text-[#78917e]">
+               {positionReady
+                 ? `Lower tick ${position.tickLower}  ·  Upper tick ${position.tickUpper}`
+                 : "Price range unavailable"}
             </div>
           </div>
+           {positionReady && (
+             <div className="mt-4 grid gap-3 sm:grid-cols-3">
+               {[
+                 ["Liquidity", position.liquidity],
+                 ["Token 0 owed", position.tokensOwed0],
+                 ["Token 1 owed", position.tokensOwed1],
+               ].map(([label, value]) => (
+                 <div key={label} className="rounded-lg border border-[#6aa4771c] bg-[#08150e] p-3">
+                   <p className="text-[10px] text-[#607a67]">{label}</p>
+                   <p className="mt-1 break-all font-mono text-xs text-[#c3d4c5]">{value}</p>
+                 </div>
+               ))}
+             </div>
+           )}
         </div>
 
         <div className="space-y-4">

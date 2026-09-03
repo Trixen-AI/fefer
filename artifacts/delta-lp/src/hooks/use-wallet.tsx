@@ -11,17 +11,11 @@ import {
   robinhoodChain,
   toChainIdHex,
 } from "@/config/network";
-
-type EthereumListener = (...args: unknown[]) => void;
-
-type EthereumProvider = {
-  request: (args: {
-    method: string;
-    params?: unknown[];
-  }) => Promise<unknown>;
-  on?: (event: string, listener: EthereumListener) => void;
-  removeListener?: (event: string, listener: EthereumListener) => void;
-};
+import {
+  getEthereumProvider,
+  type EthereumListener,
+  type EthereumProvider,
+} from "@/lib/ethereum";
 
 type WalletContextType = {
   connected: boolean;
@@ -40,15 +34,8 @@ type WalletContextType = {
 
 const WalletContext = createContext<WalletContextType | null>(null);
 
-declare global {
-  interface Window {
-    ethereum?: EthereumProvider;
-  }
-}
-
 function getProvider() {
-  if (typeof window === "undefined") return undefined;
-  return window.ethereum;
+  return getEthereumProvider();
 }
 
 function getChainId(value: unknown) {

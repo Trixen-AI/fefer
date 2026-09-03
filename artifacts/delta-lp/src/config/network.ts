@@ -12,10 +12,16 @@ export const robinhoodChain = {
   explorerUrl: String(
     import.meta.env.VITE_BLOCK_EXPLORER_URL ?? "https://robinhoodchain.blockscout.com",
   ),
+  uniswapV3PositionManager: String(
+    import.meta.env.VITE_UNISWAP_V3_POSITION_MANAGER ?? "",
+  ),
 };
 
 export const isRobinhoodChainConfigured =
   robinhoodChain.chainId !== null && robinhoodChain.rpcUrl.length > 0;
+
+export const isUniswapV3Configured =
+  /^0x[a-fA-F0-9]{40}$/.test(robinhoodChain.uniswapV3PositionManager);
 
 export function toChainIdHex(chainId: number) {
   return `0x${chainId.toString(16)}`;
