@@ -22,18 +22,7 @@ export function Token({ symbol, tone = "#d8e8d9" }: { symbol: string; tone?: str
           <path d="m16 4.5v15.7l7.2-3.9L16 4.5Z" fill="#b9d0c9" opacity=".8" />
         </svg>
       ) : normalized === "USDG" ? (
-        <svg viewBox="0 0 32 32" className="h-full w-full" role="img" aria-hidden="true">
-          <defs>
-            <linearGradient id="usdg-gradient" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#8de3a4" />
-              <stop offset="1" stopColor="#23834d" />
-            </linearGradient>
-          </defs>
-          <circle cx="16" cy="16" r="16" fill="url(#usdg-gradient)" />
-          <circle cx="16" cy="16" r="10.5" fill="none" stroke="#e2ffe9" strokeWidth="1.5" opacity=".9" />
-          <path d="M20.7 11.7c-1.2-1-2.7-1.5-4.7-1.5-2.6 0-4.4 1.2-4.4 3.1 0 2.1 1.8 2.7 4.4 3.1 2.1.3 3.2.8 3.2 1.8 0 1.1-1.2 1.8-3 1.8-1.8 0-3.2-.5-4.4-1.7" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M16 9v14" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" />
-        </svg>
+        <img src="/usdg-logo.png" alt="USDG" className="h-full w-full object-cover" />
       ) : (
         symbol.slice(0, 2)
       )}
