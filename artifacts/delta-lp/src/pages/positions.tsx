@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useWallet } from "@/hooks/use-wallet";
 
 export default function Positions() {
-  const { connected, onTargetNetwork, wrongNetwork } = useWallet();
+  const { connected, nativeBalance, onTargetNetwork, wrongNetwork } = useWallet();
 
   return (
     <>
@@ -22,7 +22,7 @@ export default function Positions() {
 
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         {[
-          ["Total value", "—", !connected ? "Wallet not connected" : wrongNetwork ? "Switch to Robinhood Chain" : "Loading balances..."],
+          ["Wallet balance", connected && onTargetNetwork && nativeBalance ? `${nativeBalance} ETH` : "—", !connected ? "Wallet not connected" : wrongNetwork ? "Switch to Robinhood Chain" : "Native balance from chain"],
           ["Active positions", "—", !connected ? "No positions detected" : wrongNetwork ? "Wrong network" : "Fetching on-chain data..."],
           ["Keeper coverage", "—", "Not configured"]
         ].map(([title, value, subtitle], i) => (

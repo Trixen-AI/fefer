@@ -6,7 +6,7 @@ import { Safety, Token } from "@/components/ui/shared";
 
 export default function CreateLP() {
   const [step, setStep] = useState(1);
-  const { connected, onTargetNetwork, wrongNetwork } = useWallet();
+  const { connected, nativeBalance, onTargetNetwork, wrongNetwork } = useWallet();
 
   return (
     <div className="delta-rise max-w-4xl">
@@ -52,7 +52,7 @@ export default function CreateLP() {
                   <Token symbol="ETH" tone="#9bc8a6" />
                   <span className="text-sm">ETH</span>
                 </div>
-                <div className="text-xs text-[#5e7765]">{connected && onTargetNetwork ? "—" : "Balance unavailable"}</div>
+                <div className="text-xs text-[#5e7765]">{connected && onTargetNetwork ? nativeBalance ? `${nativeBalance} ETH` : "Loading…" : "Balance unavailable"}</div>
               </button>
               <button className="rounded-lg border border-[#6aa47727] bg-[#08150e] p-4 text-left hover:border-primary/50 focus:outline-none focus:border-primary transition-colors">
                 <div className="mb-5 flex items-center gap-2">

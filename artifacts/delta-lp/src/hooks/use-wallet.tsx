@@ -27,6 +27,7 @@ type WalletContextType = {
   connected: boolean;
   address: string | null;
   chainId: number | null;
+  nativeBalance: string | null;
   wrongNetwork: boolean;
   onTargetNetwork: boolean;
   isConnecting: boolean;
@@ -54,6 +55,23 @@ function getChainId(value: unknown) {
   if (typeof value !== "string") return null;
   const parsed = Number.parseInt(value, 16);
   return Number.isInteger(parsed) ? parsed : null;
+}
+
+function formatNativeBalance(value: unknown) {
+  if (typeof value !== "string" || !value.startsWith("0x")) return null;
+
+  try {
+    const wei = BigInt(value);
+    const whole = wei / 10n ** 18n;
+    const fraction = (wei % 10n ** 18n)
+      .toString()
+      .padStart(18, "0")
+      .slice(0, 6)
+      .replace(/0+$/, "");
+    return fraction ? `${whole}.${fraction}` : whole.toString();
+  } catch {
+    return null;
+  }
 }
 
 function getErrorCode(error: unknown) {
@@ -97,6 +115,7 @@ async function switchProviderNetwork(provider: EthereumProvider) {
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [address, setAddress] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
+  const [nativeBalance, setNativeBalance] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -110,8 +129,29 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     ]);
 
     const nextAccounts = Array.isArray(accounts) ? accounts : [];
-    setAddress(typeof nextAccounts[0] === "string" ? nextAccounts[0] : null);
-    setChainId(getChainId(currentChain));
+    const nextAddress =
+      typeof nextAccounts[0] === "string" ? nextAccounts[0] : null;
+    const nextChainId = getChainId(currentChain);
+    setAddress(nextAddress);
+    setChainId(nextChainId);
+
+    if (
+      nextAddress &&
+      isRobinhoodChainConfigured &&
+      nextChainId === robinhoodChain.chainId
+    ) {
+      try {
+        const balance = await provider.request({
+          method: "eth_getBalance",
+          params: [nextAddress, "latest"],
+        });
+        setNativeBalance(formatNativeBalance(balance));
+      } catch {
+        setNativeBalance(null);
+      }
+    } else {
+      setNativeBalance(null);
+    }
   }, []);
 
   const switchNetwork = useCallback(async () => {
@@ -127,6 +167,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setChainId(
         getChainId(await provider.request({ method: "eth_chainId" })),
       );
+      if (address) {
+        try {
+          const balance = await provider.request({
+            method: "eth_getBalance",
+            params: [address, "latest"],
+          });
+          setNativeBalance(formatNativeBalance(balance));
+        } catch {
+          setNativeBalance(null);
+        }
+      }
     } catch (switchError) {
       const code = getErrorCode(switchError);
       setError(
@@ -170,6 +221,24 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           getChainId(await provider.request({ method: "eth_chainId" })),
         );
       }
+
+      if (
+        isRobinhoodChainConfigured &&
+        robinhoodChain.chainId !== null &&
+        (currentChain === robinhoodChain.chainId ||
+          (await provider.request({ method: "eth_chainId" })) ===
+            toChainIdHex(robinhoodChain.chainId))
+      ) {
+        try {
+          const balance = await provider.request({
+            method: "eth_getBalance",
+            params: [nextAccounts[0], "latest"],
+          });
+          setNativeBalance(formatNativeBalance(balance));
+        } catch {
+          setNativeBalance(null);
+        }
+      }
     } catch (connectError) {
       const code = getErrorCode(connectError);
       setError(
@@ -186,6 +255,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const disconnect = useCallback(() => {
     setAddress(null);
     setChainId(null);
+    setNativeBalance(null);
     setError(null);
   }, []);
 
@@ -222,6 +292,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         connected,
         address,
         chainId,
+        nativeBalance,
         wrongNetwork: connected && !onTargetNetwork,
         onTargetNetwork,
         isConnecting,
