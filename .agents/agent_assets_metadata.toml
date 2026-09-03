@@ -140,3 +140,73 @@ mtime_ms = 1788477191582
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/67b74a5a-b4d6-4fd0-b6fa-eb8fc3ff79a7/98baff43-422a-4631-b951-2e69a248eab8"
 storage_version_token = "1788477200399818"
 content_type = "image/png"
+
+[[outputs]]
+id = "C7eQHU_cAE2drxVPK4DJ2"
+uri = "file://attached_assets/generated_images/liqora-pro-logo-01-interlock.png"
+type = "image"
+title = "Liqora Professional Logo 1"
+description = "professional interlock logo"
+logical_id = "e8e29332-3bb6-48c1-9dfd-859c4a866dc7"
+content_hash = "sha256:b1e973ebce8822aba79b5f8ab57763ac4e74dcedd67dae7cb445cefba5e698cf"
+size = 732876
+mtime_ms = 1788477427737
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/e8e29332-3bb6-48c1-9dfd-859c4a866dc7/d15faae3-8112-497c-b5be-7ced94ce3b71"
+storage_version_token = "1788477433769580"
+content_type = "image/png"
+
+[[outputs]]
+id = "IorHaDmcAiZ0SwEh2m-JO"
+uri = "file://attached_assets/generated_images/liqora-pro-logo-02-two-pools.png"
+type = "image"
+title = "Liqora Professional Logo 2"
+description = "two pool flow logo"
+logical_id = "7838ceee-bf31-4b02-9205-4910843f9309"
+content_hash = "sha256:321ec31a6f92acf05eb219abba81e39738fd4a953c3465db10ed6c1e4e55b822"
+size = 716839
+mtime_ms = 1788477429429
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/7838ceee-bf31-4b02-9205-4910843f9309/d0c01113-0793-48e3-9d5d-0649aa57aacb"
+storage_version_token = "1788477435082490"
+content_type = "image/png"
+
+[[outputs]]
+id = "eoOVvO1FrBM3fGQd6INnn"
+uri = "file://attached_assets/generated_images/liqora-pro-logo-03-liquid-link.png"
+type = "image"
+title = "Liqora Professional Logo 3"
+description = "liquid link logo"
+logical_id = "ea80497a-340a-45c2-8052-171ae78e8130"
+content_hash = "sha256:b4532208a223efab2c1a48c1473a5ae97b2582745131e74426a419a643fe5ec9"
+size = 759068
+mtime_ms = 1788477428293
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/ea80497a-340a-45c2-8052-171ae78e8130/db4e19be-96d3-48e9-adfd-2ad28da45bd2"
+storage_version_token = "1788477436357429"
+content_type = "image/png"
+
+[[outputs]]
+id = "t6cTJkOv4_V-6NAaDS-OX"
+uri = "file://attached_assets/generated_images/liqora-pro-logo-04-flow-grid.png"
+type = "image"
+title = "Liqora Professional Logo 4"
+description = "controlled flow grid logo"
+logical_id = "5f348bce-d849-4995-9966-763c98b6f27b"
+content_hash = "sha256:60b4679d604d19386ad85a72dbd1e2582ff0f99d720b0d0062b3a957da5e8f7f"
+size = 745767
+mtime_ms = 1788477430501
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/5f348bce-d849-4995-9966-763c98b6f27b/740a1e1b-b36f-4b6e-a043-831c4102324a"
+storage_version_token = "1788477437626500"
+content_type = "image/png"
+
+[[outputs]]
+id = "paVLJWz3UU5Q9p9F9GSa-"
+uri = "file://attached_assets/generated_images/liqora-pro-logo-05-fluid-ribbon.png"
+type = "image"
+title = "Liqora Professional Logo 5"
+description = "fluid ribbon logo"
+logical_id = "af1201b6-1f75-46ba-8300-2e3cce760b29"
+content_hash = "sha256:971ade97ffc373e6b1fa51fe1c6e62773395c28f9908d62dff2d35b1a11aebef"
+size = 777015
+mtime_ms = 1788477431745
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/af1201b6-1f75-46ba-8300-2e3cce760b29/7448a9b2-7cde-4aea-953e-879ca0f885dd"
+storage_version_token = "1788477438914162"
+content_type = "image/png"
