@@ -5,9 +5,6 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
 
 export interface KeeperStatus {
   configured: boolean;
@@ -19,10 +16,9 @@ export interface KeeperStatus {
   /** @minimum 0 */
   activeMandates: number;
   /** @nullable */
-  lastPollAt: string | null;
+  lastPollAt: Date | null;
   /** @nullable */
   lastTransactionHash: string | null;
   /** @nullable */
   lastError: string | null;
 }
-

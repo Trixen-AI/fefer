@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: keeper
+    description: Delta LP keeper operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /keeper/status:
+    get:
+      operationId: keeperStatus
+      tags: [keeper]
+      summary: Keeper status
+      description: Returns configuration and polling status without exposing credentials
+      responses:
+        "200":
+          description: Current keeper status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeeperStatus"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +48,44 @@ components:
           type: string
       required:
         - status
+    KeeperStatus:
+      type: object
+      properties:
+        configured:
+          type: boolean
+        running:
+          type: boolean
+        operatorAddress:
+          type:
+            - string
+            - "null"
+        contractAddress:
+          type:
+            - string
+            - "null"
+        activeMandates:
+          type: number
+          minimum: 0
+        lastPollAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        lastTransactionHash:
+          type:
+            - string
+            - "null"
+        lastError:
+          type:
+            - string
+            - "null"
+      required:
+        - configured
+        - running
+        - operatorAddress
+        - contractAddress
+        - activeMandates
+        - lastPollAt
+        - lastTransactionHash
+        - lastError
 
