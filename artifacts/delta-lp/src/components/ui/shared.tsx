@@ -1,12 +1,42 @@
 import { ReactNode } from "react";
 
 export function Token({ symbol, tone = "#d8e8d9" }: { symbol: string; tone?: string }) {
+  const normalized = symbol.toUpperCase();
   return (
     <span 
-      style={{ background: tone, color: "#06100b" }} 
-      className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ring-2 ring-[#0b1c12]"
+      aria-label={`${symbol} token`}
+      style={{ background: normalized === "WETH" || normalized === "USDG" ? "#0b1c12" : tone, color: "#06100b" }} 
+      className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full text-[10px] font-bold ring-2 ring-[#0b1c12]"
     >
-      {symbol.slice(0, 2)}
+      {normalized === "WETH" ? (
+        <svg viewBox="0 0 32 32" className="h-full w-full" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="weth-gradient" x1="7" y1="4" x2="25" y2="28" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#e9f4f0" />
+              <stop offset="1" stopColor="#8ca9a1" />
+            </linearGradient>
+          </defs>
+          <circle cx="16" cy="16" r="16" fill="#627c77" />
+          <path d="m16 4.5-7.2 11.8L16 20.2l7.2-3.9L16 4.5Z" fill="url(#weth-gradient)" />
+          <path d="m16 21.8-7.2-4.1L16 27.5l7.2-9.8-7.2 4.1Z" fill="#c6dbd4" />
+          <path d="m16 4.5v15.7l7.2-3.9L16 4.5Z" fill="#b9d0c9" opacity=".8" />
+        </svg>
+      ) : normalized === "USDG" ? (
+        <svg viewBox="0 0 32 32" className="h-full w-full" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="usdg-gradient" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#77c9f5" />
+              <stop offset="1" stopColor="#398dba" />
+            </linearGradient>
+          </defs>
+          <circle cx="16" cy="16" r="16" fill="url(#usdg-gradient)" />
+          <circle cx="16" cy="16" r="10.5" fill="none" stroke="#dff5ff" strokeWidth="1.5" opacity=".85" />
+          <path d="M20.7 11.7c-1.2-1-2.7-1.5-4.7-1.5-2.6 0-4.4 1.2-4.4 3.1 0 2.1 1.8 2.7 4.4 3.1 2.1.3 3.2.8 3.2 1.8 0 1.1-1.2 1.8-3 1.8-1.8 0-3.2-.5-4.4-1.7" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M16 9v14" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      ) : (
+        symbol.slice(0, 2)
+      )}
     </span>
   );
 }

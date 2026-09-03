@@ -67,8 +67,8 @@ export default function PositionDetail() {
           </div>
           <div className="flex items-center gap-3">
             <div className="flex -space-x-2">
-              <Token symbol="0" tone="#9bc8a6" />
-              <Token symbol="1" tone="#8db6d8" />
+              <Token symbol={position ? (position.token0.toLowerCase() === robinhoodChain.token0Address.toLowerCase() ? robinhoodChain.token0Label : "TOKEN") : "WETH"} tone="#9bc8a6" />
+              <Token symbol={position ? (position.token1.toLowerCase() === robinhoodChain.token1Address.toLowerCase() ? robinhoodChain.token1Label : "TOKEN") : "USDG"} tone="#8db6d8" />
             </div>
             <h1 className="text-xl font-semibold tracking-[-.03em] sm:text-2xl">
               {positionReady

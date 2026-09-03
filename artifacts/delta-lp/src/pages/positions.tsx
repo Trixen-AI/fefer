@@ -4,6 +4,7 @@ import { useWallet } from "@/hooks/use-wallet";
 import { useLiquidityPositions } from "@/hooks/use-liquidity-positions";
 import { shortenAddress } from "@/lib/ethereum";
 import { StatusPill, Token } from "@/components/ui/shared";
+import { robinhoodChain } from "@/config/network";
 
 function formatFee(fee: number) {
   return `${fee / 10_000}%`;
@@ -14,6 +15,13 @@ function formatLiquidity(liquidity: string) {
   if (value === 0n) return "0";
   const text = value.toString();
   return text.length > 12 ? `${text.slice(0, 6)}…${text.slice(-4)}` : text;
+}
+
+function tokenLabel(address: string) {
+  const normalized = address.toLowerCase();
+  if (normalized === robinhoodChain.token0Address.toLowerCase()) return robinhoodChain.token0Label;
+  if (normalized === robinhoodChain.token1Address.toLowerCase()) return robinhoodChain.token1Label;
+  return "TOKEN";
 }
 
 export default function Positions() {
@@ -108,8 +116,8 @@ export default function Positions() {
 
                   <div className="mt-5 flex items-center gap-3">
                     <div className="flex -space-x-2">
-                      <Token symbol="0" tone="#9bc8a6" />
-                      <Token symbol="1" tone="#8db6d8" />
+                      <Token symbol={tokenLabel(position.token0)} tone="#9bc8a6" />
+                      <Token symbol={tokenLabel(position.token1)} tone="#8db6d8" />
                     </div>
                     <div className="min-w-0 font-mono text-xs text-[#b7cbb9]">
                       {shortenAddress(position.token0)} / {shortenAddress(position.token1)}
