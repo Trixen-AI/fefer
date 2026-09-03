@@ -2,7 +2,6 @@ import { useState, ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Activity,
-  ArrowDown,
   Bot,
   ChevronDown,
   CircleHelp,
@@ -25,6 +24,7 @@ const navLinks = [
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
+  const logoSrc = `${import.meta.env.BASE_URL}liqora-logo.png`;
   const {
     connected,
     address,
@@ -50,8 +50,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
         {/* Desktop Sidebar */}
         <aside style={{ background: "rgba(8,21,14,.88)" }} className="hidden w-[232px] shrink-0 border-r px-5 py-6 lg:flex lg:flex-col">
           <div className="flex items-center gap-3 px-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <ArrowDown size={18} strokeWidth={3} />
+            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-[#f2f7f3] p-1">
+              <img src={logoSrc} alt="" className="h-full w-full object-contain" />
             </div>
             <div>
               <div className="text-sm font-bold tracking-tight">liqora<span className="text-primary">.</span></div>
@@ -93,7 +93,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <button onClick={() => setMobileNav(!mobileNav)} aria-label="Open navigation" className="rounded-md p-1 text-[#92a995]">
                 <Menu size={20} />
               </button>
-              <span className="text-sm font-bold">liqora<span className="text-primary">.</span></span>
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-md bg-[#f2f7f3] p-0.5">
+                  <img src={logoSrc} alt="" className="h-full w-full object-contain" />
+                </span>
+                <span className="text-sm font-bold">liqora<span className="text-primary">.</span></span>
+              </div>
             </div>
             <div className="hidden items-center gap-2 text-xs text-[#77907d] sm:flex">
               <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-primary' : 'bg-[#536c5a]'}`} /> 
