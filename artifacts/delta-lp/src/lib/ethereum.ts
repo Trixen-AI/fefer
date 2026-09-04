@@ -20,6 +20,36 @@ export function getEthereumProvider() {
   return window.ethereum;
 }
 
+export function getWalletErrorMessage(
+  cause: unknown,
+  fallback = "The wallet request failed.",
+) {
+  if (cause instanceof Error && cause.message) return cause.message;
+  if (typeof cause === "string" && cause.trim()) return cause;
+  if (typeof cause !== "object" || cause === null) return fallback;
+
+  const value = cause as {
+    message?: unknown;
+    shortMessage?: unknown;
+    reason?: unknown;
+    data?: unknown;
+    error?: unknown;
+  };
+  const directMessages = [value.shortMessage, value.reason, value.message];
+  for (const message of directMessages) {
+    if (typeof message === "string" && message.trim()) return message;
+  }
+
+  for (const nested of [value.data, value.error]) {
+    if (typeof nested === "object" && nested !== null && "message" in nested) {
+      const message = (nested as { message?: unknown }).message;
+      if (typeof message === "string" && message.trim()) return message;
+    }
+  }
+
+  return fallback;
+}
+
 export async function readContract(
   provider: EthereumProvider,
   to: string,

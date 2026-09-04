@@ -8,6 +8,7 @@ import {
   encodeUint256,
   encodeTransactionData,
   getEthereumProvider,
+  getWalletErrorMessage,
   parseUnits,
   readContract,
   readRpcContract,
@@ -227,9 +228,7 @@ export function useUniswapPool() {
         await refresh();
         return hash;
       } catch (cause) {
-        setError(
-          cause instanceof Error ? cause.message : "Approval was rejected.",
-        );
+        setError(getWalletErrorMessage(cause, "Approval was rejected."));
         throw cause;
       } finally {
         setIsSubmitting(false);
@@ -326,9 +325,7 @@ export function useUniswapPool() {
         await refresh();
         return hash;
       } catch (cause) {
-        setError(
-          cause instanceof Error ? cause.message : "Mint was rejected.",
-        );
+        setError(getWalletErrorMessage(cause, "Mint was rejected."));
         throw cause;
       } finally {
         setIsSubmitting(false);
