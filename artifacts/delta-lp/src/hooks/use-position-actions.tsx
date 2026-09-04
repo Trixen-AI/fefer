@@ -19,8 +19,6 @@ import {
   buildCollectData,
   buildDecreaseLiquidityData,
   buildMulticallData,
-  decodeRemovalSimulation,
-  minimumAfterSlippage,
 } from "@/lib/uniswap-position";
 
 const BALANCE_OF_SELECTOR = "0x70a08231";
@@ -204,20 +202,24 @@ export function usePositionActions() {
       try {
         const { address } = assertReady();
         const deadline = BigInt(Math.floor(Date.now() / 1000) + 1_200);
-        const simulationData = buildDecreaseLiquidityData({
-          tokenId: BigInt(position.tokenId),
-          liquidity: BigInt(position.liquidity),
-          amount0Min: 0n,
-          amount1Min: 0n,
-          deadline,
-        });
+        const closeData = buildMulticallData([
+          buildDecreaseLiquidityData({
+            tokenId: BigInt(position.tokenId),
+            liquidity: BigInt(position.liquidity),
+            amount0Min: 0n,
+            amount1Min: 0n,
+            deadline,
+          }),
+          buildCollectData(BigInt(position.tokenId), address),
+          buildBurnData(BigInt(position.tokenId)),
+        ]);
         setStatus("Simulating liquidity removal…");
         const simulationResponse = await fetch("/api/chain/simulate-mint", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             from: address,
-            data: simulationData,
+            data: closeData,
           }),
         });
         const simulationPayload = (await simulationResponse.json()) as {
@@ -234,20 +236,6 @@ export function usePositionActions() {
               : "Liquidity removal simulation failed.",
           );
         }
-        const simulation = simulationPayload.result;
-        const quote = decodeRemovalSimulation(simulation);
-
-        const closeData = buildMulticallData([
-          buildDecreaseLiquidityData({
-              tokenId: BigInt(position.tokenId),
-              liquidity: BigInt(position.liquidity),
-              amount0Min: minimumAfterSlippage(quote.amount0),
-              amount1Min: minimumAfterSlippage(quote.amount1),
-              deadline,
-          }),
-          buildCollectData(BigInt(position.tokenId), address),
-          buildBurnData(BigInt(position.tokenId)),
-        ]);
         const closeHash = await sendAndConfirm(
           {
             from: address,
