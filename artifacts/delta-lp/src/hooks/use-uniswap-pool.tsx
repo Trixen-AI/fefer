@@ -12,7 +12,6 @@ import {
   readContract,
   readRpcContract,
   sendTransaction,
-  simulateRpcTransaction,
   waitForTransactionReceipt,
 } from "@/lib/ethereum";
 import { isUniswapV3Configured, robinhoodChain } from "@/config/network";
@@ -292,13 +291,10 @@ export function useUniswapPool() {
       setIsSubmitting(true);
       setError(null);
       try {
-        const simulation = await simulateRpcTransaction(
-          robinhoodChain.rpcUrl,
-          {
-            from: address,
-            to: robinhoodChain.uniswapV3PositionManager,
-            data: buildMintData(0n, 0n),
-          },
+        const simulation = await readContract(
+          provider,
+          robinhoodChain.uniswapV3PositionManager,
+          buildMintData(0n, 0n),
         );
         const simulationWords = decodeWords(simulation);
         const quotedAmount0 = simulationWords[2]

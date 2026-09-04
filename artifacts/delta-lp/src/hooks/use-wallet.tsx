@@ -169,7 +169,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const code = getErrorCode(switchError);
       setError(
         code === 4001
-          ? "Permintaan perpindahan network dibatalkan di wallet."
+          ? "The network switch request was cancelled in your wallet."
           : "Robinhood Chain could not be selected in your wallet.",
       );
       await syncWallet();
@@ -230,7 +230,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const code = getErrorCode(connectError);
       setError(
         code === 4001
-          ? "Koneksi wallet dibatalkan."
+          ? "The wallet connection request was cancelled."
           : "The wallet could not be connected. Please try again.",
       );
       await syncWallet();
