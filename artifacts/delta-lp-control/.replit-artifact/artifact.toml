@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/delta-lp-control/"
+title = "Delta LP Control"
+description = "A production-ready liquidity position control surface based on the selected Delta LP canvas design, with live wallet connectivity, Uniswap V3 positions, fee collection, keeper controls, and market data."
+version = "1.0.0"
+id = "artifacts/delta-lp-control"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/delta-lp-control/" ]
+localPort = 18923
+
+[services.development]
+run = "pnpm --filter @workspace/delta-lp-control run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/delta-lp-control", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/delta-lp-control/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18923"
+BASE_PATH = "/delta-lp-control/"
