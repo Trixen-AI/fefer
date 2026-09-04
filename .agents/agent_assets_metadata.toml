@@ -224,3 +224,31 @@ mtime_ms = 1788478455985
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/f5a4f720-c2f6-4bb1-81b0-69eaa188f639/1b86be6f-d238-47f9-985c-9801d80d35e4"
 storage_version_token = "1788478465923893"
 content_type = "image/png"
+
+[[outputs]]
+id = "LbnE41rF6k1qA-2n94qrh"
+uri = "file://liqora-netlify-site.zip"
+type = "unspecified"
+title = "Liqora Netlify Site ZIP"
+description = "Build frontend siap di-upload langsung ke Netlify melalui Deploy manually."
+logical_id = "70d3a537-328b-4683-932f-e9933bacc6bf"
+content_hash = "sha256:106a4a7ef5b3cfb200b008d027a157a6fa915185cd3f834d0cd04c073d2d6430"
+size = 1320551
+mtime_ms = 1788526983918
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/70d3a537-328b-4683-932f-e9933bacc6bf/f270f6c6-d49f-43ad-94e6-f479061c890e"
+storage_version_token = "1788526996647719"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "x9S0s9lH3jTZcPrqlIIM0"
+uri = "file://liqora-complete-source.zip"
+type = "unspecified"
+title = "Liqora Complete Source ZIP"
+description = "Source lengkap frontend, API server, konfigurasi, dan panduan deployment tanpa node_modules atau secrets."
+logical_id = "1c28d424-a5f2-4072-8c2f-c865e0a16c16"
+content_hash = "sha256:bb28c3cc1bfc6b0f0f69a4ec3f1d599932bd4d1dcbd44d742c6b577ec68b62db"
+size = 18874682
+mtime_ms = 1788526984717
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/1c28d424-a5f2-4072-8c2f-c865e0a16c16/0b9e0b1e-03ff-4460-86a7-686d43efffa8"
+storage_version_token = "1788526998144560"
+content_type = "application/octet-stream"
