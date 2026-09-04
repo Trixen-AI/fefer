@@ -1,4 +1,4 @@
-import { ArrowRight, Bot, Gauge, Plus, RefreshCw, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, Bot, Gauge, Layers, Plus, RefreshCw, ShieldCheck, SlidersHorizontal, Wallet, Activity, Zap } from "lucide-react";
 import { Link } from "wouter";
 import { useWallet } from "@/hooks/use-wallet";
 import {
@@ -48,7 +48,7 @@ function supportsLiveRange(position: LiquidityPosition) {
 }
 
 export default function Positions() {
-  const { connected, nativeBalance, onTargetNetwork, wrongNetwork } = useWallet();
+  const { connected, nativeBalance, onTargetNetwork, wrongNetwork, connect } = useWallet();
   const { positions, totalCount, isLoading, error, refresh } = useLiquidityPositions();
   const { tokens, currentTick } = useUniswapPool();
   const { collectAll, isSubmitting: isCollecting, status: actionStatus, error: actionError } = usePositionActions();
@@ -74,141 +74,260 @@ export default function Positions() {
   };
 
   return (
-    <>
-      <div className="mb-8 flex items-end justify-between">
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
-          <div className="mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[.18em] text-[#688471]">
-            Workspace <span className="text-[#3e5a46]">/</span> Positions
+          <div className="mb-3 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70">
+            Workspace <span className="text-border">/</span> <span className="text-primary">Positions</span>
           </div>
-          <h1 className="text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Positions</h1>
-          <p className="mt-2 text-sm text-[#819989]">Monitor ranges and define your exit logic.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-glow">Liquidity Control</h1>
+          <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-lg">
+            Monitor Uniswap V3 ranges, observe uncollected fees, and configure keeper automation logic.
+          </p>
         </div>
-        <Link href="/create" className="hidden items-center gap-2 rounded-lg border border-[#5ee08a38] px-3 py-2 text-xs font-semibold text-[#b8e8c1] hover:bg-[#5ee08a0d] sm:flex focus:outline-none focus:ring-2 focus:ring-primary">
-          <Plus size={15} /> New position
+        <Link href="/create" className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_0_15px_rgba(94,224,138,0.2)] transition-all hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(94,224,138,0.4)] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
+          <Plus size={16} /> New position
         </Link>
       </div>
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+      <div className="mb-8 grid gap-4 sm:grid-cols-3">
         {[
-          ["Wallet balance", connected && onTargetNetwork && nativeBalance ? `${nativeBalance} ETH` : "—", !connected ? "Wallet not connected" : wrongNetwork ? "Switch to Robinhood Chain" : "Native balance from chain"],
-          ["Active positions", connected && onTargetNetwork && !isLoading ? String(totalCount) : "—", !connected ? "No positions detected" : wrongNetwork ? "Wrong network" : isLoading ? "Reading position NFTs..." : error ? "Read unavailable" : "From Uniswap V3 manager"],
-          ["Keeper coverage", "—", "Not configured"]
-        ].map(([title, value, subtitle], i) => (
-          <div key={title} className="card-gradient rounded-xl border p-4">
-            <div className="flex items-center justify-between text-[11px] text-[#74907d]">
+          {
+            title: "Wallet Balance",
+            value: connected && onTargetNetwork && nativeBalance ? `${nativeBalance} ETH` : "—",
+            subtitle: !connected ? "Wallet not connected" : wrongNetwork ? "Switch to Robinhood Chain" : "Native balance from chain",
+            icon: Wallet,
+            active: connected && onTargetNetwork
+          },
+          {
+            title: "Active Positions",
+            value: connected && onTargetNetwork && !isLoading ? String(totalCount) : "—",
+            subtitle: !connected ? "No positions detected" : wrongNetwork ? "Wrong network" : isLoading ? "Reading NFTs..." : error ? "Read unavailable" : "From Uniswap V3 manager",
+            icon: Layers,
+            active: hasPositions
+          },
+          {
+            title: "Keeper Coverage",
+            value: "Standby",
+            subtitle: "Not configured",
+            icon: Bot,
+            active: false
+          }
+        ].map(({ title, value, subtitle, icon: Icon, active }) => (
+          <div key={title} className="group relative overflow-hidden rounded-xl border border-border/50 bg-card/40 p-5 backdrop-blur-sm transition-colors hover:bg-card/60">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="relative z-10 flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
               {title}
-              <span className="text-[#55705d]">
-                {i === 2 ? <Bot size={15} /> : <SlidersHorizontal size={14} />}
-              </span>
+              <Icon size={14} className={active ? "text-primary" : "text-muted-foreground/50"} />
             </div>
-            <div className="mt-3 text-2xl font-medium tracking-tight text-[#e3eee5]">{value}</div>
-            <div className="mt-1 text-[10px] text-[#647d6b]">{subtitle}</div>
+            <div className={`relative z-10 mt-4 text-3xl font-medium tracking-tight ${active ? "text-foreground" : "text-muted-foreground/50"}`}>
+              {value}
+            </div>
+            <div className="relative z-10 mt-2 text-[10px] text-muted-foreground/70">{subtitle}</div>
           </div>
         ))}
       </div>
 
+      {/* Disconnected / Preview State */}
+      {!connected && (
+        <div className="relative mt-8 overflow-hidden rounded-2xl border border-border/50 bg-card p-6 shadow-2xl sm:p-10">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-30" />
+          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/5 blur-3xl" />
+          
+          <div className="relative z-10 flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-xl">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                <Activity size={12} className="animate-pulse" /> Platform Preview
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl text-glow">
+                Your liquidity, under a watchful keeper.
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                Connect your wallet to inspect your on-chain Uniswap V3 positions, track your live uncollected fees across pools, and define automated keeper boundaries.
+              </p>
+              
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button 
+                  onClick={() => void connect()}
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:bg-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 focus:ring-offset-background"
+                >
+                  <Wallet size={16} /> Connect to access
+                </button>
+                <Link href="/create" className="inline-flex items-center justify-center gap-2 rounded-md border border-border/50 bg-card/50 px-5 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-white/5 hover:text-foreground">
+                  Explore creation <ArrowRight size={14} />
+                </Link>
+              </div>
+              <p className="mt-6 flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground/60">
+                <ShieldCheck size={12} /> Non-custodial &bull; Execute via your wallet
+              </p>
+            </div>
+            
+            {/* Mock Position Card showing what it looks like */}
+            <div className="w-full max-w-sm shrink-0 rotate-1 transform opacity-60 transition-all duration-700 hover:rotate-0 hover:opacity-100 lg:ml-auto">
+              <div className="relative rounded-xl border border-primary/20 bg-[#06100b] p-5 shadow-[0_0_40px_rgba(94,224,138,0.1)]">
+                <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/5" />
+                <div className="flex items-start justify-between">
+                  <div>
+                     <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Example Position</p>
+                     <h3 className="mt-1 font-mono text-base font-bold text-foreground">#—</h3>
+                  </div>
+                  <div className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">
+                    <span className="h-1 w-1 rounded-full bg-primary animate-pulse" /> Active
+                  </div>
+                </div>
+                <div className="mt-6 flex items-center gap-3 border-b border-border/50 pb-6">
+                  <div className="flex -space-x-2">
+                    <Token symbol={robinhoodChain.token0Label} tone="#9bc8a6" />
+                    <Token symbol={robinhoodChain.token1Label} tone="#8db6d8" />
+                  </div>
+                  <div className="font-mono text-xs font-medium text-foreground">
+                    {robinhoodChain.token0Label} / {robinhoodChain.token1Label}
+                  </div>
+                </div>
+                <div className="mt-4">
+                   <div className="mb-2 flex justify-between text-[10px]">
+                     <span className="font-medium text-muted-foreground">Current range</span>
+                     <span className="flex items-center gap-1.5 font-semibold text-primary"><span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(94,224,138,0.8)]" /> In range</span>
+                   </div>
+                   <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-black/40 ring-1 ring-inset ring-border/50">
+                      <div className="absolute bottom-0 left-1/4 right-1/4 top-0 rounded-full bg-primary/20" />
+                      <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_10px_rgba(94,224,138,1)]" />
+                   </div>
+                   <div className="mt-2 flex justify-between font-mono text-[9px] text-muted-foreground/70">
+                     <span>Min tick</span>
+                     <span>Max tick</span>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Connected but no positions on network */}
+      {connected && onTargetNetwork && !hasPositions && !isLoading && !error && (
+        <div className="relative mt-8 overflow-hidden rounded-2xl border border-border/50 bg-card p-6 sm:p-10">
+          <div className="mx-auto flex max-w-md flex-col items-center text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+              <Gauge size={24} />
+            </div>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">No active liquidity</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              We couldn't find any Uniswap V3 position NFTs in your wallet on {robinhoodChain.chainName}.
+            </p>
+            <Link href="/create" className="mt-6 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
+              <Plus size={16} /> Deploy concentrated liquidity
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Earnings Section (Only when connected, even if 0) */}
       {connected && onTargetNetwork && hasPositions && (
-        <section className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <div className="card-gradient rounded-xl border border-primary/20 p-5 ring-1 ring-primary/10">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <section className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-card p-5 shadow-[0_4px_30px_rgba(0,0,0,0.5)] sm:p-6">
+            <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
+            <div className="relative z-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
-                <h2 className="text-sm font-semibold text-[#f2f7f3]">Live earnings</h2>
-                <p className="mt-1 text-xs text-[#819989]">Unclaimed on-chain fees across all visible positions.</p>
+                <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
+                  <Zap size={16} className="text-primary" /> Live Earnings
+                </h2>
+                <p className="mt-1 text-xs text-muted-foreground">Unclaimed on-chain fees across all tracked positions.</p>
               </div>
               <button
                 data-testid="button-collect-all"
                 onClick={() => void handleCollectAll()}
-                disabled={
-                  isCollecting ||
-                  (!hasEarnings && totalCount === positions.length)
-                }
-                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition hover:bg-[#7aeda0] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={isCollecting || (!hasEarnings && totalCount === positions.length)}
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary/10 px-4 py-2 text-xs font-semibold text-primary ring-1 ring-inset ring-primary/20 transition-all hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isCollecting ? <RefreshCw size={14} className="animate-spin" /> : <Bot size={14} />}
-                Collect all fees
+                {isCollecting ? "Collecting..." : "Collect all fees"}
               </button>
             </div>
             
             {hasEarnings ? (
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 {Object.entries(earnings).filter(([, val]) => val > 0n).map(([tokenAddr, amount]) => {
-                const tInfo = tokens.find(t => t.address.toLowerCase() === tokenAddr);
-                const decimals = tInfo?.decimals ?? 18;
-                const symbol = tInfo?.symbol ?? tokenLabel(tokenAddr);
-                const formatted = tInfo ? formatUnits(amount, decimals, 6) : amount.toString() + " (Raw)";
-                return (
-                  <div key={tokenAddr} data-testid={`card-earnings-${tokenAddr}`} className="flex items-center gap-3 rounded-lg border border-[#6aa4771c] bg-[#08150e] p-4">
-                    <Token symbol={symbol} tone="#9bc8a6" />
-                    <div>
-                      <div className="text-[10px] text-[#607a67]" data-testid={`text-earnings-symbol-${tokenAddr}`}>{symbol}</div>
-                      <div className="mt-1 font-mono text-lg font-medium tracking-tight text-[#c3d4c5]" data-testid={`text-earnings-amount-${tokenAddr}`}>{formatted}</div>
+                  const tInfo = tokens.find(t => t.address.toLowerCase() === tokenAddr);
+                  const decimals = tInfo?.decimals ?? 18;
+                  const symbol = tInfo?.symbol ?? tokenLabel(tokenAddr);
+                  const formatted = tInfo ? formatUnits(amount, decimals, 6) : amount.toString() + " (Raw)";
+                  return (
+                    <div key={tokenAddr} data-testid={`card-earnings-${tokenAddr}`} className="flex items-center gap-4 rounded-lg border border-border/50 bg-black/30 p-4">
+                      <Token symbol={symbol} tone="#9bc8a6" />
+                      <div>
+                        <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground" data-testid={`text-earnings-symbol-${tokenAddr}`}>{symbol}</div>
+                        <div className="mt-1 font-mono text-xl font-medium tracking-tight text-foreground" data-testid={`text-earnings-amount-${tokenAddr}`}>{formatted}</div>
+                      </div>
                     </div>
-                  </div>
-                );
+                  );
                 })}
               </div>
             ) : (
               <div
                 data-testid="status-no-unclaimed-fees"
-                className="mt-5 rounded-lg border border-[#6aa4771c] bg-[#08150e] p-4 text-xs text-[#819989]"
+                className="mt-6 rounded-lg border border-dashed border-border/50 bg-black/20 p-5 text-center text-xs text-muted-foreground"
               >
                 {totalCount > positions.length
                   ? "No fees are visible in the first 100 positions. Collect All will scan the remaining wallet positions."
                   : "No unclaimed fees are currently reported by the position manager."}
               </div>
             )}
-            {actionStatus && <p className="mt-4 flex items-center gap-2 text-xs text-[#9dccaa]">{isCollecting && <RefreshCw size={12} className="animate-spin" />} {actionStatus}</p>}
-            {actionError && <p className="mt-4 text-xs text-[#e1aa9d]">{actionError}</p>}
+            {actionStatus && <p className="mt-4 flex items-center gap-2 text-xs text-primary/80">{isCollecting && <RefreshCw size={12} className="animate-spin" />} {actionStatus}</p>}
+            {actionError && <p className="mt-4 text-xs text-destructive-foreground">{actionError}</p>}
           </div>
         </section>
       )}
 
+      {/* Positions List */}
       {connected && onTargetNetwork && (
         <section className="mb-6">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between border-b border-border/50 pb-4">
             <div>
-              <h2 className="text-sm font-semibold text-[#dbe9dd]">On-chain positions</h2>
-              <p className="mt-1 text-[11px] text-[#6f8975]">
+              <h2 className="text-base font-bold text-foreground">On-chain positions</h2>
+              <p className="mt-1 text-[11px] text-muted-foreground">
                 Read directly from the official Uniswap V3 Position Manager.
               </p>
             </div>
             <button
               onClick={() => void refresh()}
               disabled={isLoading}
-              className="flex items-center gap-2 rounded-lg border border-[#6aa47727] px-3 py-2 text-xs text-[#9eb2a2] transition hover:border-[#5ee08a55] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-2 rounded-md border border-border/50 bg-card/30 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
+              <RefreshCw size={12} className={isLoading ? "animate-spin text-primary" : ""} />
               Refresh
             </button>
           </div>
 
           {error && (
-            <div className="rounded-xl border border-[#9a5b5038] bg-[#3a211c66] p-4 text-xs text-[#e1aa9d]">
+            <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-xs text-destructive-foreground">
               {error}
             </div>
           )}
 
-          {!error && isLoading && (
-            <div className="card-gradient rounded-xl border p-5 text-sm text-[#819989]">
-              Reading position NFTs from Robinhood Chain…
+          {!error && isLoading && !hasPositions && (
+            <div className="grid gap-4 md:grid-cols-2">
+              {[1, 2].map(i => (
+                <div key={i} className="h-48 animate-pulse rounded-xl border border-border/30 bg-card/20" />
+              ))}
             </div>
           )}
 
           {!error && !isLoading && hasPositions && (
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               {positions.map((position) => (
                 <Link
                   key={position.tokenId}
                   href={`/positions/${position.tokenId}`}
                   data-testid={`link-position-${position.tokenId}`}
-                  className="card-gradient rounded-xl border p-5 transition hover:border-[#5ee08a55] focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="group relative flex flex-col rounded-xl border border-border/60 bg-card/40 p-5 backdrop-blur-md transition-all hover:border-primary/40 hover:bg-card/60 hover:shadow-[0_0_25px_rgba(94,224,138,0.06)] focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-[10px] uppercase tracking-[.16em] text-[#66816e]">
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-colors group-hover:text-primary/70">
                         Position NFT
                       </p>
-                      <h3 className="mt-1 text-lg font-semibold">#{position.tokenId}</h3>
+                      <h3 className="mt-1 font-mono text-lg font-bold text-foreground">#{position.tokenId}</h3>
                     </div>
                     <StatusPill green={BigInt(position.liquidity) > 0n}>
                       {BigInt(position.liquidity) > 0n ? "Active liquidity" : "No liquidity"}
@@ -220,37 +339,37 @@ export default function Positions() {
                       <Token symbol={tokenLabel(position.token0)} tone="#9bc8a6" />
                       <Token symbol={tokenLabel(position.token1)} tone="#8db6d8" />
                     </div>
-                    <div className="min-w-0 font-mono text-xs text-[#b7cbb9]">
+                    <div className="min-w-0 font-mono text-xs font-medium text-foreground/90">
                       {shortenAddress(position.token0)} / {shortenAddress(position.token1)}
                     </div>
                   </div>
 
-                  <div className="mt-5 border-t border-[#6aa47718] pt-4">
+                  <div className="mt-5 border-t border-border/40 pt-4">
                     <div className="mb-4">
                       <div className="mb-2 flex items-center justify-between text-[10px]">
-                        <span className="text-[#607a67]">Current range</span>
+                        <span className="font-medium text-muted-foreground">Current range</span>
                         {currentTick !== null && supportsLiveRange(position) ? (
                           currentTick >= position.tickLower && currentTick <= position.tickUpper ? (
-                            <span data-testid={`status-range-${position.tokenId}`} className="flex items-center gap-1.5 font-medium text-primary">
-                              <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(94,224,138,0.6)] animate-pulse" />
+                            <span data-testid={`status-range-${position.tokenId}`} className="flex items-center gap-1.5 font-semibold text-primary">
+                              <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(94,224,138,0.8)] animate-pulse" />
                               In range
                             </span>
                           ) : (
-                            <span data-testid={`status-range-${position.tokenId}`} className="flex items-center gap-1.5 font-medium text-destructive-foreground">
+                            <span data-testid={`status-range-${position.tokenId}`} className="flex items-center gap-1.5 font-semibold text-destructive-foreground">
                               <span className="h-1.5 w-1.5 rounded-full bg-destructive-foreground" />
                               Out of range
                             </span>
                           )
                         ) : (
-                          <span data-testid={`status-range-${position.tokenId}`} className="text-[#607a67]">Unavailable</span>
+                          <span data-testid={`status-range-${position.tokenId}`} className="font-medium text-muted-foreground">Unavailable</span>
                         )}
                       </div>
-                      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-[#08150e] ring-1 ring-inset ring-[#6aa47718]">
-                        <div className="absolute inset-y-0 left-1/4 right-1/4 rounded-full bg-[#1b3b27]" />
+                      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-black/40 ring-1 ring-inset ring-border/50">
+                        <div className="absolute inset-y-0 left-1/4 right-1/4 rounded-full bg-primary/20" />
                         {currentTick !== null && supportsLiveRange(position) && (
                           <div 
                             data-testid={`indicator-tick-${position.tokenId}`}
-                            className={`absolute top-1/2 -mt-[3px] h-1.5 w-1.5 rounded-full ${currentTick >= position.tickLower && currentTick <= position.tickUpper ? "bg-primary shadow-[0_0_8px_rgba(94,224,138,0.8)]" : "bg-[#8ea596]"}`}
+                            className={`absolute top-1/2 -mt-[3px] h-2 w-2 rounded-full transition-all duration-500 ${currentTick >= position.tickLower && currentTick <= position.tickUpper ? "bg-primary shadow-[0_0_10px_rgba(94,224,138,1)]" : "bg-muted-foreground"}`}
                             style={{ 
                               left: currentTick < position.tickLower 
                                 ? "10%" 
@@ -261,20 +380,20 @@ export default function Positions() {
                           />
                         )}
                       </div>
-                      <div className="mt-1.5 flex justify-between text-[9px] font-mono text-[#55705d]">
+                      <div className="mt-2 flex justify-between text-[9px] font-mono font-medium text-muted-foreground/60">
                         <span>{position.tickLower}</span>
                         <span>{position.tickUpper}</span>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-4 rounded-lg bg-black/20 p-3">
                       <div>
-                        <p className="text-[10px] text-[#607a67]">Fee tier</p>
-                        <p className="mt-1 text-xs text-[#c3d4c5]">{formatFee(position.fee)}</p>
+                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Fee tier</p>
+                        <p className="mt-1 font-mono text-xs font-medium text-foreground/90">{formatFee(position.fee)}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#607a67]">Liquidity</p>
-                        <p className="mt-1 font-mono text-xs text-[#c3d4c5]">
+                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Liquidity</p>
+                        <p className="mt-1 font-mono text-xs font-medium text-foreground/90">
                           {formatLiquidity(position.liquidity)}
                         </p>
                       </div>
@@ -286,40 +405,12 @@ export default function Positions() {
           )}
 
           {!error && !isLoading && totalCount > positions.length && (
-            <p className="mt-3 text-[11px] text-[#78917e]">
+            <div className="mt-6 rounded-lg border border-dashed border-border/50 p-4 text-center text-[11px] font-medium text-muted-foreground">
               Showing the first {positions.length} of {totalCount} position NFTs.
-            </p>
+            </div>
           )}
         </section>
       )}
-
-      {!hasPositions && !isLoading && !error && (
-      <div className="animate-in fade-in duration-500">
-        <div style={{ background: "radial-gradient(circle at 75% 0%, rgba(57,135,78,.15), transparent 42%), #0b1a11" }} className="relative overflow-hidden rounded-2xl border p-6 sm:p-10">
-          <div className="absolute -right-8 -top-12 h-44 w-44 rounded-full border border-[#5ee08a18]" />
-          <div className="absolute right-8 top-8 h-24 w-24 rounded-full border border-[#5ee08a12]" />
-          
-          <div className="relative max-w-xl">
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-primary">
-              <Gauge size={21} />
-            </div>
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[.19em] text-[#6f9b79]">Positions overview</p>
-            <h2 className="text-2xl font-semibold tracking-[-.03em] text-[#f2f7f3] sm:text-3xl">
-              Your liquidity, under a watchful keeper.
-            </h2>
-            <p className="mt-3 max-w-md text-sm leading-6 text-[#8ea596]">
-              {!connected ? "Connect a wallet to inspect your positions, or start by defining a concentrated-liquidity range." : !onTargetNetwork ? "Switch your wallet to Robinhood Chain to inspect your positions." : "You have no active liquidity positions. Start by defining a concentrated-liquidity range."}
-            </p>
-            <Link href="/create" className="mt-7 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-[#7aeda0] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
-              <Plus size={16} /> Create an LP position <ArrowRight size={15} />
-            </Link>
-            <p className="mt-4 flex items-center gap-2 text-[11px] text-[#637c6b]">
-              <ShieldCheck size={14} /> Transactions must be approved in your wallet.
-            </p>
-          </div>
-        </div>
-      </div>
-      )}
-    </>
+    </div>
   );
 }
