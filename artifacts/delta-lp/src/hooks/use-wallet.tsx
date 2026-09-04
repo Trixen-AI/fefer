@@ -144,7 +144,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const switchNetwork = useCallback(async () => {
     const provider = getProvider();
     if (!provider) {
-      setError("MetaMask atau wallet EVM belum terdeteksi di browser ini.");
+      setError("MetaMask or another EVM wallet was not detected in this browser.");
       return;
     }
 
@@ -170,7 +170,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setError(
         code === 4001
           ? "Permintaan perpindahan network dibatalkan di wallet."
-          : "Robinhood Chain belum berhasil dipilih di wallet.",
+          : "Robinhood Chain could not be selected in your wallet.",
       );
       await syncWallet();
     }
@@ -179,7 +179,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const connect = useCallback(async () => {
     const provider = getProvider();
     if (!provider) {
-      setError("MetaMask atau wallet EVM belum terdeteksi di browser ini.");
+      setError("MetaMask or another EVM wallet was not detected in this browser.");
       return;
     }
 
@@ -231,7 +231,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setError(
         code === 4001
           ? "Koneksi wallet dibatalkan."
-          : "Wallet tidak berhasil terhubung. Coba lagi.",
+          : "The wallet could not be connected. Please try again.",
       );
       await syncWallet();
     } finally {
