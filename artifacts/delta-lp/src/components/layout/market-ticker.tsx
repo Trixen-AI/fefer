@@ -25,70 +25,46 @@ export function MarketTicker({ className = "" }: { className?: string }) {
 
   if (isLoading) {
     return (
-      <div className={`flex items-center gap-4 bg-muted/30 px-4 py-1.5 border-b border-border/50 text-[10px] uppercase tracking-widest ${className}`} aria-label="Loading market prices">
-        <div className="flex items-center gap-2 text-muted-foreground">
+      <div className={`flex items-center gap-4 bg-[#08150e] px-4 py-1.5 border-b border-[rgba(100,180,120,.16)] text-[10px] uppercase tracking-widest ${className}`}>
+        <div className="flex items-center gap-2 text-[#647d6b]">
           <Activity size={12} className="animate-pulse" />
-          <span>Syncing Market Data</span>
-        </div>
-        <div className="flex gap-4 opacity-50">
-          {[0, 1, 2].map((item) => (
-            <span
-              key={item}
-              className="h-4 w-24 animate-pulse rounded bg-border/50"
-            />
-          ))}
+          <span>Syncing</span>
         </div>
       </div>
     );
   }
 
   if (isError || !data) {
-    return (
-      <div
-        data-testid="status-market-prices-error"
-        className={`flex items-center gap-2 bg-muted/30 px-4 py-1.5 border-b border-border/50 text-[10px] uppercase tracking-widest text-muted-foreground ${className}`}
-      >
-        <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
-        Market stream disconnected
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div
-      data-testid="ticker-market-prices"
-      className={`flex items-center gap-6 overflow-x-auto bg-muted/30 px-4 py-1.5 border-b border-border/50 no-scrollbar ${className}`}
-      aria-label="Live cryptocurrency prices"
-    >
-      <span className="flex shrink-0 items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-        </span>
+    <div className={`flex items-center gap-6 overflow-x-auto bg-[#08150e] px-4 py-1.5 border-b border-[rgba(100,180,120,.16)] no-scrollbar ${className}`}>
+      <span className="flex shrink-0 items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#5ee08a]">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#5ee08a] animate-pulse" />
         Live
       </span>
       
       <div className="flex items-center gap-6">
-        {data.prices.map((asset) => {
+        {data.prices.filter(p => ["BTC", "ETH", "SOL"].includes(p.symbol)).map((asset) => {
           const isPositive = asset.change24h !== null && asset.change24h >= 0;
           const ChangeIcon = isPositive ? TrendingUp : TrendingDown;
 
           return (
             <div
               key={asset.symbol}
-              data-testid={`ticker-price-${asset.symbol.toLowerCase()}`}
               className="flex shrink-0 items-center gap-2"
             >
-              <span className="text-[10px] font-bold tracking-wider text-foreground">
+              <span className="text-[10px] font-bold tracking-wider text-[#dff6e4]">
                 {asset.symbol}
               </span>
-              <span className="font-mono text-[10px] text-muted-foreground">
+              <span className="font-mono text-[10px] text-[#829b88]">
                 {formatUsd(asset.priceUsd)}
               </span>
               {asset.change24h !== null && (
                 <span
                   className={`flex items-center gap-0.5 text-[10px] font-mono font-medium ${
-                    isPositive ? "text-primary" : "text-destructive-foreground"
+                    isPositive ? "text-[#5ee08a]" : "text-[#d9a4a4]"
                   }`}
                 >
                   {isPositive ? "+" : ""}

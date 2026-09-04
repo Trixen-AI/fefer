@@ -9,8 +9,11 @@ export default function ActivityView() {
   const { connected, onTargetNetwork, wrongNetwork } = useWallet();
   const { transactions, isLoading, error, refresh } = useActivity();
 
+  const border = "rgba(100,180,120,.16)";
+  const card = "linear-gradient(145deg, #102719 0%, #0b1a11 100%)";
+
   return (
-    <div className="liqora-rise">
+    <div className="delta-rise">
       <div className="mb-8">
         <p className="mb-3 text-[11px] uppercase tracking-[.18em] text-[#688471]">Audit trail</p>
         <h1 className="text-3xl font-semibold tracking-[-.04em]">Activity</h1>
@@ -25,10 +28,11 @@ export default function ActivityView() {
         </div>
       )}
       {error && <div className="mb-4 rounded-xl border border-[#9a5b5038] bg-[#3a211c66] p-4 text-xs text-[#e1aa9d]">{error}</div>}
+      
       {transactions.length > 0 ? (
         <div className="space-y-2">
           {transactions.map((transaction) => (
-            <a key={transaction.hash} href={`${robinhoodChain.explorerUrl}/tx/${transaction.hash}`} target="_blank" rel="noreferrer" className="card-gradient flex items-center justify-between gap-4 rounded-xl border p-4 transition hover:border-[#5ee08a55]">
+            <a key={transaction.hash} href={`${robinhoodChain.explorerUrl}/tx/${transaction.hash}`} target="_blank" rel="noreferrer" style={{ background: card, borderColor: border }} className="flex items-center justify-between gap-4 rounded-xl border p-4 transition hover:border-[#5ee08a55]">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 text-xs text-[#c7d9ca]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#5ee08a]" />
@@ -42,18 +46,18 @@ export default function ActivityView() {
           ))}
         </div>
       ) : (
-      <div className="card-gradient flex min-h-[310px] flex-col items-center justify-center rounded-xl border p-8 text-center">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#5ee08a28] text-primary">
-          <Activity size={20} />
+        <div style={{ background: card, borderColor: border }} className="flex min-h-[310px] flex-col items-center justify-center rounded-xl border p-8 text-center">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#5ee08a28] text-[#5ee08a]">
+            <Activity size={20}/>
+          </div>
+          <h2 className="text-base font-semibold">No activity to show</h2>
+          <p className="mt-2 max-w-sm text-xs leading-5 text-[#78917e]">
+            {!connected ? "Connect a wallet to load your on-chain activity." : wrongNetwork ? "Switch to target network." : "No historical transactions found for this address."}
+          </p>
+          <span className="mt-5">
+            <StatusPill>{!connected ? "Wallet not connected" : !onTargetNetwork ? "Wrong network" : "Up to date"}</StatusPill>
+          </span>
         </div>
-        <h2 className="text-base font-semibold">No activity to show</h2>
-        <p className="mt-2 max-w-sm text-xs leading-5 text-[#78917e]">
-          {!connected ? "Connect a wallet to load your on-chain activity." : wrongNetwork ? "Switch to Robinhood Chain to load activity for this address." : "No historical transactions found for this address on the current network."}
-        </p>
-        <span className="mt-5">
-          <StatusPill>{!connected ? "Wallet not connected" : !onTargetNetwork ? "Wrong network" : "Up to date"}</StatusPill>
-        </span>
-      </div>
       )}
     </div>
   );
