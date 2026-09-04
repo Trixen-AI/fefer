@@ -194,6 +194,19 @@ export function AppLayout({ children }: { children: ReactNode }) {
                   </Link>
                 );
               })}
+              <div className="mt-2 border-t border-border/60 pt-2">
+                <a
+                  href="https://x.com/liqoraliquidity"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileNav(false)}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm font-medium text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                >
+                  <span className="w-4 text-center font-semibold">𝕏</span>
+                  Follow on X
+                  <ExternalLink size={12} className="ml-auto opacity-50" />
+                </a>
+              </div>
             </div>
           )}
 
