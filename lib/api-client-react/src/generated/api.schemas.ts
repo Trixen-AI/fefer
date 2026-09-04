@@ -26,3 +26,16 @@ export interface KeeperStatus {
   lastError: string | null;
 }
 
+export interface MarketPrice {
+  symbol: string;
+  /** @minimum 0 */
+  priceUsd: number;
+  /** @nullable */
+  change24h: number | null;
+}
+
+export interface MarketPricesPayload {
+  prices: MarketPrice[];
+  updatedAt: string;
+}
+

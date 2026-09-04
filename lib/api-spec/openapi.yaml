@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: keeper
     description: Liqora keeper operations
+  - name: market
+    description: Public crypto market data
 paths:
   /healthz:
     get:
@@ -39,6 +41,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/KeeperStatus"
+  /market/prices:
+    get:
+      operationId: marketPrices
+      tags: [market]
+      summary: Live crypto prices
+      description: Returns current USD prices and 24-hour changes for selected crypto assets
+      responses:
+        "200":
+          description: Current market prices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketPricesPayload"
+        "502":
+          description: Market data provider unavailable
 components:
   schemas:
     HealthStatus:
@@ -88,4 +105,33 @@ components:
         - lastPollAt
         - lastTransactionHash
         - lastError
+    MarketPrice:
+      type: object
+      properties:
+        symbol:
+          type: string
+        priceUsd:
+          type: number
+          minimum: 0
+        change24h:
+          type:
+            - number
+            - "null"
+      required:
+        - symbol
+        - priceUsd
+        - change24h
+    MarketPricesPayload:
+      type: object
+      properties:
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketPrice"
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - prices
+        - updatedAt
 

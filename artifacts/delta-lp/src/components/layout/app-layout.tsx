@@ -12,6 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useWallet } from "@/hooks/use-wallet";
+import { MarketTicker } from "@/components/layout/market-ticker";
 
 type Section = "positions" | "create" | "automation" | "activity";
 
@@ -111,6 +112,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                     : "No wallet connected"}
                 </span>
             </div>
+            <MarketTicker className="mx-4 hidden xl:flex" />
             <div className="ml-auto flex items-center gap-2 sm:gap-3">
               <button
                 onClick={wrongNetwork ? () => void switchNetwork() : undefined}
@@ -130,6 +132,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
               </button>
             </div>
           </header>
+          <div className="sticky top-[68px] z-10 border-b border-[#6aa47718] bg-[#07120c]/95 px-4 py-2 backdrop-blur-md xl:hidden">
+            <MarketTicker />
+          </div>
           {error && (
             <div className="border-b border-[#9a5b5038] bg-[#3a211c] px-4 py-2 text-center text-xs text-[#e6b7ab] sm:px-8">
               {error}

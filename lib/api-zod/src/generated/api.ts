@@ -37,3 +37,21 @@ export const KeeperStatusResponse = zod.object({
 })
 
 
+/**
+ * Returns current USD prices and 24-hour changes for selected crypto assets
+ * @summary Live crypto prices
+ */
+export const marketPricesResponsePricesItemPriceUsdMin = 0;
+
+
+
+export const MarketPricesResponse = zod.object({
+  "prices": zod.array(zod.object({
+  "symbol": zod.string(),
+  "priceUsd": zod.number().min(marketPricesResponsePricesItemPriceUsdMin),
+  "change24h": zod.number().nullable()
+})),
+  "updatedAt": zod.coerce.date()
+})
+
+

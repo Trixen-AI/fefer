@@ -17,7 +17,8 @@ import type {
 
 import type {
   HealthStatus,
-  KeeperStatus
+  KeeperStatus,
+  MarketPricesPayload
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -191,6 +192,84 @@ export function useKeeperStatus<TData = Awaited<ReturnType<typeof keeperStatus>>
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getKeeperStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getMarketPricesUrl = () => {
+
+
+
+
+  return `/api/market/prices`
+}
+
+/**
+ * Returns current USD prices and 24-hour changes for selected crypto assets
+ * @summary Live crypto prices
+ */
+export const marketPrices = async ( options?: Parameters<typeof customFetch>[1]): Promise<MarketPricesPayload> => {
+
+  return customFetch<MarketPricesPayload>(getMarketPricesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getMarketPricesQueryKey = () => {
+    return [
+    `/api/market/prices`
+    ] as const;
+    }
+
+
+export const getMarketPricesQueryOptions = <TData = Awaited<ReturnType<typeof marketPrices>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof marketPrices>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getMarketPricesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof marketPrices>>> = ({ signal }) => marketPrices({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof marketPrices>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type MarketPricesQueryResult = NonNullable<Awaited<ReturnType<typeof marketPrices>>>
+export type MarketPricesQueryError = ErrorType<void>
+
+
+/**
+ * @summary Live crypto prices
+ */
+
+export function useMarketPrices<TData = Awaited<ReturnType<typeof marketPrices>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof marketPrices>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getMarketPricesQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

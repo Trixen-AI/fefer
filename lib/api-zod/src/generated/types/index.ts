@@ -8,3 +8,5 @@
 
 export * from './healthStatus';
 export * from './keeperStatus';
+export * from './marketPrice';
+export * from './marketPricesPayload';
