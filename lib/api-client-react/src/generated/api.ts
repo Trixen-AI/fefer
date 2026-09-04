@@ -6,11 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
@@ -18,11 +22,13 @@ import type {
 import type {
   HealthStatus,
   KeeperStatus,
-  MarketPricesPayload
+  MarketPricesPayload,
+  MintSimulationInput,
+  MintSimulationResult
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
-import type { ErrorType } from '../custom-fetch';
+import type { ErrorType , BodyType } from '../custom-fetch';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -281,4 +287,76 @@ export function useMarketPrices<TData = Awaited<ReturnType<typeof marketPrices>>
 
 
 
+
+export const getSimulateMintUrl = () => {
+
+
+
+
+  return `/api/chain/simulate-mint`
+}
+
+/**
+ * Simulates a mint against the configured position manager without submitting a transaction
+ * @summary Simulate a position mint
+ */
+export const simulateMint = async (mintSimulationInput: MintSimulationInput, options?: Parameters<typeof customFetch>[1]): Promise<MintSimulationResult> => {
+
+  return customFetch<MintSimulationResult>(getSimulateMintUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(mintSimulationInput)
+  }
+);}
+
+
+
+
+
+export const getSimulateMintMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof simulateMint>>, TError,{data: BodyType<MintSimulationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof simulateMint>>, TError,{data: BodyType<MintSimulationInput>}, TContext> => {
+
+const mutationKey = ['simulateMint'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof simulateMint>>, {data: BodyType<MintSimulationInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  simulateMint(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SimulateMintMutationResult = NonNullable<Awaited<ReturnType<typeof simulateMint>>>
+    export type SimulateMintMutationBody = BodyType<MintSimulationInput>
+    export type SimulateMintMutationError = ErrorType<void>
+
+    /**
+ * @summary Simulate a position mint
+ */
+export const useSimulateMint = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof simulateMint>>, TError,{data: BodyType<MintSimulationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof simulateMint>>,
+        TError,
+        {data: BodyType<MintSimulationInput>},
+        TContext
+      > => {
+      return useMutation(getSimulateMintMutationOptions(options));
+    }
 

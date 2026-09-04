@@ -39,3 +39,18 @@ export interface MarketPricesPayload {
   updatedAt: string;
 }
 
+export interface MintSimulationInput {
+  /** @pattern ^0x[a-fA-F0-9]{40}$ */
+  from: string;
+  /**
+     * @maxLength 4096
+     * @pattern ^0x[a-fA-F0-9]+$
+     */
+  data: string;
+}
+
+export interface MintSimulationResult {
+  /** @pattern ^0x[a-fA-F0-9]*$ */
+  result: string;
+}
+

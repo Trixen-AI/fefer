@@ -55,3 +55,27 @@ export const MarketPricesResponse = zod.object({
 })
 
 
+/**
+ * Simulates a mint against the configured position manager without submitting a transaction
+ * @summary Simulate a position mint
+ */
+export const simulateMintBodyFromRegExp = new RegExp('^0x[a-fA-F0-9]{40}$');
+export const simulateMintBodyDataMax = 4096;
+
+
+export const simulateMintBodyDataRegExp = new RegExp('^0x[a-fA-F0-9]+$');
+
+
+export const SimulateMintBody = zod.object({
+  "from": zod.string().regex(simulateMintBodyFromRegExp),
+  "data": zod.string().max(simulateMintBodyDataMax).regex(simulateMintBodyDataRegExp)
+})
+
+export const simulateMintResponseResultRegExp = new RegExp('^0x[a-fA-F0-9]*$');
+
+
+export const SimulateMintResponse = zod.object({
+  "result": zod.string().regex(simulateMintResponseResultRegExp)
+})
+
+

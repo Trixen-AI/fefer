@@ -14,6 +14,8 @@ tags:
     description: Liqora keeper operations
   - name: market
     description: Public crypto market data
+  - name: chain
+    description: Restricted Robinhood Chain operations
 paths:
   /healthz:
     get:
@@ -56,6 +58,29 @@ paths:
                 $ref: "#/components/schemas/MarketPricesPayload"
         "502":
           description: Market data provider unavailable
+  /chain/simulate-mint:
+    post:
+      operationId: simulateMint
+      tags: [chain]
+      summary: Simulate a position mint
+      description: Simulates a mint against the configured position manager without submitting a transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MintSimulationInput"
+      responses:
+        "200":
+          description: Encoded mint simulation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MintSimulationResult"
+        "400":
+          description: Invalid simulation request
+        "502":
+          description: Chain RPC rejected the simulation
 components:
   schemas:
     HealthStatus:
@@ -134,4 +159,25 @@ components:
       required:
         - prices
         - updatedAt
+    MintSimulationInput:
+      type: object
+      properties:
+        from:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+        data:
+          type: string
+          pattern: "^0x[a-fA-F0-9]+$"
+          maxLength: 4096
+      required:
+        - from
+        - data
+    MintSimulationResult:
+      type: object
+      properties:
+        result:
+          type: string
+          pattern: "^0x[a-fA-F0-9]*$"
+      required:
+        - result
 

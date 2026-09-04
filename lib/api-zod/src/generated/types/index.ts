@@ -10,3 +10,5 @@ export * from './healthStatus';
 export * from './keeperStatus';
 export * from './marketPrice';
 export * from './marketPricesPayload';
+export * from './mintSimulationInput';
+export * from './mintSimulationResult';

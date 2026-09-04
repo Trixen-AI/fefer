@@ -290,11 +290,29 @@ export function useUniswapPool() {
       setIsSubmitting(true);
       setError(null);
       try {
-        const simulation = await readContract(
-          provider,
-          robinhoodChain.uniswapV3PositionManager,
-          buildMintData(0n, 0n),
-        );
+        const simulationResponse = await fetch("/api/chain/simulate-mint", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            from: address,
+            data: buildMintData(0n, 0n),
+          }),
+        });
+        const simulationPayload = (await simulationResponse.json()) as {
+          result?: unknown;
+          error?: unknown;
+        };
+        if (
+          !simulationResponse.ok ||
+          typeof simulationPayload.result !== "string"
+        ) {
+          throw new Error(
+            typeof simulationPayload.error === "string"
+              ? simulationPayload.error
+              : "Mint simulation failed before submission.",
+          );
+        }
+        const simulation = simulationPayload.result;
         const simulationWords = decodeWords(simulation);
         const quotedAmount0 = simulationWords[2]
           ? decodeUint256(simulationWords[2])
