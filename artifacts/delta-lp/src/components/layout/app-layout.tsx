@@ -90,6 +90,17 @@ export function AppLayout({ children }: { children: ReactNode }) {
           </div>
           
           <div className="mt-auto space-y-1">
+            <a
+              href="https://x.com/liqoraliquidity"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-white/5 hover:text-foreground"
+              aria-label="Follow Liqora on X"
+            >
+              <span className="w-4 text-center font-semibold">𝕏</span>
+              Follow on X
+              <ExternalLink size={12} className="ml-auto opacity-50" />
+            </a>
             <button onClick={() => alert("Docs are not connected.")} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-white/5 hover:text-foreground">
               <CircleHelp size={16} /> Documentation <ExternalLink size={12} className="ml-auto opacity-50" />
             </button>
