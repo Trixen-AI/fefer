@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  ChainPositionsPayload,
   HealthStatus,
   KeeperStatus,
   MarketPricesPayload,
@@ -359,4 +360,81 @@ export const useSimulateMint = <TError = ErrorType<void>,
       > => {
       return useMutation(getSimulateMintMutationOptions(options));
     }
+
+export const getChainPositionsUrl = (owner: string,) => {
+
+
+
+
+  return `/api/chain/positions/${owner}`
+}
+
+/**
+ * @summary List position NFTs owned by a wallet
+ */
+export const chainPositions = async (owner: string, options?: Parameters<typeof customFetch>[1]): Promise<ChainPositionsPayload> => {
+
+  return customFetch<ChainPositionsPayload>(getChainPositionsUrl(owner),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getChainPositionsQueryKey = (owner: string,) => {
+    return [
+    `/api/chain/positions/${owner}`
+    ] as const;
+    }
+
+
+export const getChainPositionsQueryOptions = <TData = Awaited<ReturnType<typeof chainPositions>>, TError = ErrorType<void>>(owner: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof chainPositions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getChainPositionsQueryKey(owner);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof chainPositions>>> = ({ signal }) => chainPositions(owner, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: owner !== null && owner !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof chainPositions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ChainPositionsQueryResult = NonNullable<Awaited<ReturnType<typeof chainPositions>>>
+export type ChainPositionsQueryError = ErrorType<void>
+
+
+/**
+ * @summary List position NFTs owned by a wallet
+ */
+
+export function useChainPositions<TData = Awaited<ReturnType<typeof chainPositions>>, TError = ErrorType<void>>(
+ owner: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof chainPositions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getChainPositionsQueryOptions(owner,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 

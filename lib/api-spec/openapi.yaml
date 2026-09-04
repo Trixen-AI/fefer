@@ -81,6 +81,29 @@ paths:
           description: Invalid simulation request
         "502":
           description: Chain RPC rejected the simulation
+  /chain/positions/{owner}:
+    get:
+      operationId: chainPositions
+      tags: [chain]
+      summary: List position NFTs owned by a wallet
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+      responses:
+        "200":
+          description: Position NFT data from the configured position manager
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChainPositionsPayload"
+        "400":
+          description: Invalid owner address
+        "502":
+          description: Chain RPC unavailable
 components:
   schemas:
     HealthStatus:
@@ -180,4 +203,29 @@ components:
           pattern: "^0x[a-fA-F0-9]*$"
       required:
         - result
+    ChainPositionData:
+      type: object
+      properties:
+        tokenId:
+          type: string
+          pattern: "^[0-9]+$"
+        data:
+          type: string
+          pattern: "^0x[a-fA-F0-9]*$"
+      required:
+        - tokenId
+        - data
+    ChainPositionsPayload:
+      type: object
+      properties:
+        totalCount:
+          type: number
+          minimum: 0
+        positions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChainPositionData"
+      required:
+        - totalCount
+        - positions
 

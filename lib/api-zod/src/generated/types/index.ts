@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './chainPositionData';
+export * from './chainPositionsPayload';
 export * from './healthStatus';
 export * from './keeperStatus';
 export * from './marketPrice';

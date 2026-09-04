@@ -54,3 +54,16 @@ export interface MintSimulationResult {
   result: string;
 }
 
+export interface ChainPositionData {
+  /** @pattern ^[0-9]+$ */
+  tokenId: string;
+  /** @pattern ^0x[a-fA-F0-9]*$ */
+  data: string;
+}
+
+export interface ChainPositionsPayload {
+  /** @minimum 0 */
+  totalCount: number;
+  positions: ChainPositionData[];
+}
+

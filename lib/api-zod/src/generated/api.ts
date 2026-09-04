@@ -79,3 +79,28 @@ export const SimulateMintResponse = zod.object({
 })
 
 
+/**
+ * @summary List position NFTs owned by a wallet
+ */
+export const chainPositionsPathOwnerRegExp = new RegExp('^0x[a-fA-F0-9]{40}$');
+
+
+export const ChainPositionsParams = zod.object({
+  "owner": zod.coerce.string().regex(chainPositionsPathOwnerRegExp)
+})
+
+export const chainPositionsResponseTotalCountMin = 0;
+
+export const chainPositionsResponsePositionsItemTokenIdRegExp = new RegExp('^[0-9]+$');
+export const chainPositionsResponsePositionsItemDataRegExp = new RegExp('^0x[a-fA-F0-9]*$');
+
+
+export const ChainPositionsResponse = zod.object({
+  "totalCount": zod.number().min(chainPositionsResponseTotalCountMin),
+  "positions": zod.array(zod.object({
+  "tokenId": zod.string().regex(chainPositionsResponsePositionsItemTokenIdRegExp),
+  "data": zod.string().regex(chainPositionsResponsePositionsItemDataRegExp)
+}))
+})
+
+

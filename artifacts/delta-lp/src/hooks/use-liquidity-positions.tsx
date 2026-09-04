@@ -4,20 +4,12 @@ import {
   decodeSignedInt24,
   decodeUint256,
   decodeWords,
-  encodeAddress,
-  encodeUint256,
-  readRpcContract,
 } from "@/lib/ethereum";
 import {
   isUniswapV3Configured,
   robinhoodChain,
 } from "@/config/network";
 import { useWallet } from "@/hooks/use-wallet";
-
-const BALANCE_OF_SELECTOR = "0x70a08231";
-const TOKEN_OF_OWNER_BY_INDEX_SELECTOR = "0x2f745c59";
-const POSITIONS_SELECTOR = "0x99fbab88";
-const MAX_POSITIONS_PER_REFRESH = 100;
 
 export type LiquidityPosition = {
   tokenId: string;
@@ -66,56 +58,41 @@ export function useLiquidityPositions() {
 
     setIsLoading(true);
     setError(null);
-    let readStage = "position count";
-
     try {
-      const manager = robinhoodChain.uniswapV3PositionManager;
-      const countResponse = await readRpcContract(
-        robinhoodChain.rpcUrl,
-        manager,
-        `${BALANCE_OF_SELECTOR}${encodeAddress(address)}`,
-      );
-      const [countWord] = decodeWords(countResponse);
-      if (!countWord) {
-        throw new Error("Position manager returned an empty balance.");
-      }
-      const count = Number(decodeUint256(countWord));
-      setTotalCount(count);
-      const visibleCount = Math.min(count, MAX_POSITIONS_PER_REFRESH);
-      const tokenIds: bigint[] = [];
-
-      for (let index = 0; index < visibleCount; index += 1) {
-        readStage = `token ID at index ${index}`;
-        const tokenIdResponse = await readRpcContract(
-          robinhoodChain.rpcUrl,
-          manager,
-          `${TOKEN_OF_OWNER_BY_INDEX_SELECTOR}${encodeAddress(address)}${encodeUint256(index)}`,
+      const response = await fetch(`/api/chain/positions/${address}`);
+      const payload = (await response.json()) as {
+        totalCount?: unknown;
+        positions?: Array<{ tokenId?: unknown; data?: unknown }>;
+        error?: unknown;
+      };
+      if (
+        !response.ok ||
+        typeof payload.totalCount !== "number" ||
+        !Array.isArray(payload.positions)
+      ) {
+        throw new Error(
+          typeof payload.error === "string"
+            ? payload.error
+            : "Position API returned an invalid response.",
         );
-        const [tokenIdWord] = decodeWords(tokenIdResponse);
-        if (!tokenIdWord) {
-          throw new Error("Position manager returned an empty token ID.");
+      }
+      const nextPositions = payload.positions.map((item) => {
+        if (
+          typeof item.tokenId !== "string" ||
+          typeof item.data !== "string"
+        ) {
+          throw new Error("Position API returned malformed NFT data.");
         }
-        tokenIds.push(decodeUint256(tokenIdWord));
-      }
-
-      const nextPositions: LiquidityPosition[] = [];
-      for (const tokenId of tokenIds) {
-        readStage = `position NFT #${tokenId}`;
-        const positionResponse = await readRpcContract(
-          robinhoodChain.rpcUrl,
-          manager,
-          `${POSITIONS_SELECTOR}${encodeUint256(tokenId)}`,
-        );
-        nextPositions.push(formatPosition(positionResponse, tokenId));
-      }
-
+        return formatPosition(item.data, BigInt(item.tokenId));
+      });
+      setTotalCount(payload.totalCount);
       setPositions(nextPositions);
     } catch (cause) {
       setPositions([]);
       setTotalCount(0);
       const detail =
         cause instanceof Error ? cause.message : "Unknown RPC response.";
-      setError(`Read failed at ${readStage}: ${detail}`);
+      setError(`Position read failed: ${detail}`);
     } finally {
       setIsLoading(false);
     }
