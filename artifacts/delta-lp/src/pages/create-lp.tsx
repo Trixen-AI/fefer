@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, ChevronDown, ClipboardList, ExternalLink, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { useWallet } from "@/hooks/use-wallet";
@@ -48,6 +48,15 @@ export default function CreateLP() {
     approve,
     mint,
   } = useUniswapPool();
+  const initializedRange = useRef(false);
+
+  useEffect(() => {
+    if (currentTick === null || initializedRange.current) return;
+    const alignedTick = Math.floor(currentTick / 10) * 10;
+    setTickLowerInput(String(Math.max(MIN_TICK, alignedTick - 100)));
+    setTickUpperInput(String(Math.min(MAX_TICK, alignedTick + 100)));
+    initializedRange.current = true;
+  }, [currentTick]);
 
   const token0 = tokens[0];
   const token1 = tokens[1];
@@ -59,7 +68,12 @@ export default function CreateLP() {
     isValidTick(tickLowerInput) &&
     isValidTick(tickUpperInput) &&
     tickLower < tickUpper;
-  const amountsValid = amount0 > 0n && amount1 > 0n;
+  const token0Required = currentTick === null || currentTick < tickUpper;
+  const token1Required = currentTick === null || currentTick >= tickLower;
+  const amountsValid =
+    (!token0Required || amount0 > 0n) &&
+    (!token1Required || amount1 > 0n) &&
+    (amount0 > 0n || amount1 > 0n);
   const balancesValid =
     Boolean(token0 && token1) &&
     amount0 <= (token0?.balance ?? 0n) &&
@@ -67,10 +81,10 @@ export default function CreateLP() {
   const inputsValid = rangeValid && amountsValid && balancesValid;
   const approvalsReady =
     Boolean(token0 && token1) &&
-    amount0 > 0n &&
-    amount1 > 0n &&
-    (token0?.allowance ?? 0n) >= amount0 &&
-    (token1?.allowance ?? 0n) >= amount1;
+    (!token0Required ||
+      (amount0 > 0n && (token0?.allowance ?? 0n) >= amount0)) &&
+    (!token1Required ||
+      (amount1 > 0n && (token1?.allowance ?? 0n) >= amount1));
 
   const poolState = useMemo(() => {
     if (!connected) return "Connect wallet to read the pool.";
@@ -269,7 +283,15 @@ export default function CreateLP() {
             </div>
 
             {!rangeValid && <p className="mt-3 text-xs text-[#e1aa9d]">Use ticks between {MIN_TICK} and {MAX_TICK}, divisible by 10, with lower below upper.</p>}
-            {rangeValid && !amountsValid && <p className="mt-3 text-xs text-[#e1aa9d]">Enter a positive deposit for both tokens.</p>}
+            {rangeValid && !amountsValid && (
+              <p className="mt-3 text-xs text-[#e1aa9d]">
+                {token0Required && token1Required
+                  ? "Enter a positive deposit for both tokens."
+                  : token0Required
+                    ? `This range is above the current price. Enter a ${token0?.symbol ?? "token 0"} deposit; the other token is not required.`
+                    : `This range is below the current price. Enter a ${token1?.symbol ?? "token 1"} deposit; the other token is not required.`}
+              </p>
+            )}
             {amountsValid && !balancesValid && <p className="mt-3 text-xs text-[#e1aa9d]">Deposit cannot exceed the connected wallet balance.</p>}
 
             <div className="mt-6 flex gap-3">
