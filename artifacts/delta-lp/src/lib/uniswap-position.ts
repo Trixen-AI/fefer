@@ -2,11 +2,13 @@ import {
   decodeUint256,
   decodeWords,
   encodeTransactionData,
+  encodeUint256,
 } from "./ethereum";
 
-export const DECREASE_LIQUIDITY_SELECTOR = "0x03a3f2ab";
-export const COLLECT_SELECTOR = "0x260e12b0";
+export const DECREASE_LIQUIDITY_SELECTOR = "0x0c49ccbe";
+export const COLLECT_SELECTOR = "0xfc6f7865";
 export const BURN_SELECTOR = "0x42966c68";
+export const MULTICALL_SELECTOR = "0xac9650d8";
 export const MAX_UINT128 = 2n ** 128n - 1n;
 
 export function minimumAfterSlippage(value: bigint, slippageBps = 50) {
@@ -43,6 +45,23 @@ export function buildCollectData(tokenId: bigint, recipient: string) {
 
 export function buildBurnData(tokenId: bigint) {
   return encodeTransactionData(BURN_SELECTOR, ["uint256"], [tokenId]);
+}
+
+export function buildMulticallData(calls: string[]) {
+  const encodedCalls = calls.map((call) => {
+    const value = call.replace(/^0x/, "");
+    const byteLength = value.length / 2;
+    const paddedValue = value.padEnd(Math.ceil(byteLength / 32) * 64, "0");
+    return `${encodeUint256(byteLength)}${paddedValue}`;
+  });
+  let offset = 32 * calls.length;
+  const offsets = encodedCalls.map((call) => {
+    const encodedOffset = encodeUint256(offset);
+    offset += call.length / 2;
+    return encodedOffset;
+  });
+
+  return `${MULTICALL_SELECTOR}${encodeUint256(32)}${encodeUint256(calls.length)}${offsets.join("")}${encodedCalls.join("")}`;
 }
 
 export function decodeRemovalSimulation(data: string) {

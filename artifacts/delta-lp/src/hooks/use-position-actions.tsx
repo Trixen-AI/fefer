@@ -5,9 +5,9 @@ import {
   encodeAddress,
   encodeUint256,
   getEthereumProvider,
+  getWalletErrorMessage,
   readRpcContract,
   sendTransaction,
-  simulateRpcTransaction,
   waitForTransactionReceipt,
 } from "@/lib/ethereum";
 import { isUniswapV3Configured, robinhoodChain } from "@/config/network";
@@ -18,6 +18,7 @@ import {
   buildBurnData,
   buildCollectData,
   buildDecreaseLiquidityData,
+  buildMulticallData,
   decodeRemovalSimulation,
   minimumAfterSlippage,
 } from "@/lib/uniswap-position";
@@ -211,49 +212,54 @@ export function usePositionActions() {
           deadline,
         });
         setStatus("Simulating liquidity removal…");
-        const simulation = await simulateRpcTransaction(robinhoodChain.rpcUrl, {
-          from: address,
-          to: robinhoodChain.uniswapV3PositionManager,
-          data: simulationData,
+        const simulationResponse = await fetch("/api/chain/simulate-mint", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            from: address,
+            data: simulationData,
+          }),
         });
+        const simulationPayload = (await simulationResponse.json()) as {
+          result?: unknown;
+          error?: unknown;
+        };
+        if (
+          !simulationResponse.ok ||
+          typeof simulationPayload.result !== "string"
+        ) {
+          throw new Error(
+            typeof simulationPayload.error === "string"
+              ? simulationPayload.error
+              : "Liquidity removal simulation failed.",
+          );
+        }
+        const simulation = simulationPayload.result;
         const quote = decodeRemovalSimulation(simulation);
 
-        await sendAndConfirm(
-          {
-            from: address,
-            to: robinhoodChain.uniswapV3PositionManager,
-            data: buildDecreaseLiquidityData({
+        const closeData = buildMulticallData([
+          buildDecreaseLiquidityData({
               tokenId: BigInt(position.tokenId),
               liquidity: BigInt(position.liquidity),
               amount0Min: minimumAfterSlippage(quote.amount0),
               amount1Min: minimumAfterSlippage(quote.amount1),
               deadline,
-            }),
-          },
-          "Removing liquidity",
-        );
-
-        await sendAndConfirm(
+          }),
+          buildCollectData(BigInt(position.tokenId), address),
+          buildBurnData(BigInt(position.tokenId)),
+        ]);
+        const closeHash = await sendAndConfirm(
           {
             from: address,
             to: robinhoodChain.uniswapV3PositionManager,
-            data: buildCollectData(BigInt(position.tokenId), address),
+            data: closeData,
           },
-          "Collecting position tokens",
-        );
-
-        const burnHash = await sendAndConfirm(
-          {
-            from: address,
-            to: robinhoodChain.uniswapV3PositionManager,
-            data: buildBurnData(BigInt(position.tokenId)),
-          },
-          "Burning empty position NFT",
+          "Closing position and collecting tokens",
         );
         setStatus("Position closed and tokens collected.");
-        return burnHash;
+        return closeHash;
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Position close failed.");
+        setError(getWalletErrorMessage(cause, "Position close failed."));
         throw cause;
       } finally {
         setIsSubmitting(false);
