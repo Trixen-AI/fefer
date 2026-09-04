@@ -10,6 +10,7 @@ import {
   robinhoodChain,
 } from "@/config/network";
 import { useWallet } from "@/hooks/use-wallet";
+import { apiUrl } from "@/lib/api";
 
 export type LiquidityPosition = {
   tokenId: string;
@@ -59,7 +60,7 @@ export function useLiquidityPositions() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/chain/positions/${address}`);
+      const response = await fetch(apiUrl(`/api/chain/positions/${address}`));
       const payload = (await response.json()) as {
         totalCount?: unknown;
         positions?: Array<{ tokenId?: unknown; data?: unknown }>;

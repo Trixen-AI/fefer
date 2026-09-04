@@ -18,6 +18,7 @@ import {
 import { isUniswapV3Configured, robinhoodChain } from "@/config/network";
 import { useWallet } from "@/hooks/use-wallet";
 import { recordActivity } from "@/lib/activity-store";
+import { apiUrl } from "@/lib/api";
 
 const SYMBOL_SELECTOR = "0x95d89b41";
 const DECIMALS_SELECTOR = "0x313ce567";
@@ -290,7 +291,7 @@ export function useUniswapPool() {
       setIsSubmitting(true);
       setError(null);
       try {
-        const simulationResponse = await fetch("/api/chain/simulate-mint", {
+        const simulationResponse = await fetch(apiUrl("/api/chain/simulate-mint"), {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({

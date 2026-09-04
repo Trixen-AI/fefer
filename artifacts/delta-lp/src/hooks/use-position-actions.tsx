@@ -14,6 +14,7 @@ import { isUniswapV3Configured, robinhoodChain } from "@/config/network";
 import { useWallet } from "@/hooks/use-wallet";
 import type { LiquidityPosition } from "@/hooks/use-liquidity-positions";
 import { recordActivity } from "@/lib/activity-store";
+import { apiUrl } from "@/lib/api";
 import {
   buildBurnData,
   buildCollectData,
@@ -214,7 +215,7 @@ export function usePositionActions() {
           buildBurnData(BigInt(position.tokenId)),
         ]);
         setStatus("Simulating liquidity removal…");
-        const simulationResponse = await fetch("/api/chain/simulate-mint", {
+        const simulationResponse = await fetch(apiUrl("/api/chain/simulate-mint"), {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({

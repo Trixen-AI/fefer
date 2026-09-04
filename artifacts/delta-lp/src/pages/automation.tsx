@@ -12,6 +12,7 @@ import {
   shortenAddress,
   waitForTransactionReceipt,
 } from "@/lib/ethereum";
+import { apiUrl } from "@/lib/api";
 
 const keeperAddress = String(import.meta.env.VITE_EXIT_KEEPER_ADDRESS ?? "");
 const APPROVE_SELECTOR = "0x095ea7b3";
@@ -40,7 +41,7 @@ export default function Automation() {
 
   const loadStatus = useCallback(async () => {
     try {
-      const response = await fetch("/api/keeper/status");
+      const response = await fetch(apiUrl("/api/keeper/status"));
       if (!response.ok) throw new Error("Keeper API is unavailable.");
       setStatus((await response.json()) as KeeperStatus);
     } catch (error) {
