@@ -99,7 +99,7 @@ export function usePositionActions() {
   const assertReady = () => {
     const provider = getEthereumProvider();
     if (!provider || !address) throw new Error("Connect a wallet first.");
-    if (!onTargetNetwork) throw new Error("Switch to target network first.");
+    if (!onTargetNetwork) throw new Error("Switch to Robinhood Chain first.");
     if (!isUniswapV3Configured) throw new Error("Uniswap contracts are not configured.");
     return { provider, address };
   };

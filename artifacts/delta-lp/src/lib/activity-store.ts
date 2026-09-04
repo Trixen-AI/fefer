@@ -1,5 +1,5 @@
-const STORAGE_PREFIX = "delta-lp-control:activity";
-const ACTIVITY_EVENT = "delta-lp-control-activity";
+const STORAGE_PREFIX = "liqora:activity";
+const ACTIVITY_EVENT = "liqora-activity";
 const MAX_RECORDS = 100;
 
 export type ActivityRecord = {
