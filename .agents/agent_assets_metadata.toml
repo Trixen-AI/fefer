@@ -252,3 +252,17 @@ mtime_ms = 1788526984717
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/1c28d424-a5f2-4072-8c2f-c865e0a16c16/0b9e0b1e-03ff-4460-86a7-686d43efffa8"
 storage_version_token = "1788526998144560"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "V_nwdkTqEx9PFuiIpANxr"
+uri = "file://liqora-netlify-complete.zip"
+type = "unspecified"
+title = "Liqora — ZIP Utuh Siap Netlify"
+description = "Satu paket lengkap berisi website build, Netlify Function API, konfigurasi Netlify, README pemula, dan source cadangan."
+logical_id = "a7f5d7a1-8dcf-4e91-a168-9c2b206908f1"
+content_hash = "sha256:c2d579b4ea6e1c2d3f8a0e8847addbc817d4b7aadb0e7287b8b7d28253a80869"
+size = 20207486
+mtime_ms = 1788608045847
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:e244650c-c10d-4663-8ff1-cf476807f860/a7f5d7a1-8dcf-4e91-a168-9c2b206908f1/9b5b6111-a623-4295-b7ae-72a161493196"
+storage_version_token = "1788608054766387"
+content_type = "application/octet-stream"
