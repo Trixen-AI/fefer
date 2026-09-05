@@ -1,10 +1,17 @@
 [build]
   command = "PORT=4173 BASE_PATH=/ pnpm --filter @workspace/liqora run build"
   publish = "artifacts/delta-lp/dist/public"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
   PNPM_VERSION = "10"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
