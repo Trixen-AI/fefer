@@ -55,3 +55,6 @@ Thumbs.db
 
 # Netlify
 .netlify/
+
+# Build/distribution archives - jangan commit, bikin repo berat
+*.zip
