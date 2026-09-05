@@ -16,5 +16,9 @@
   "devDependencies": {
     "prettier": "^3.9.6",
     "typescript": "~5.9.3"
+  },
+  "packageManager": "pnpm@10.8.0",
+  "engines": {
+    "node": ">=20.19.0"
   }
 }

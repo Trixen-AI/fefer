@@ -1,11 +1,41 @@
+# Netlify configuration for Liqora (artifacts/delta-lp)
+# Build: static Vite SPA + one zero-dependency Netlify Function for the API.
+
 [build]
-  command = "PORT=4173 BASE_PATH=/ pnpm --filter @workspace/liqora run build"
+  command = "pnpm --filter @workspace/liqora run build"
   publish = "artifacts/delta-lp/dist/public"
   functions = "netlify/functions"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
   PNPM_VERSION = "10"
+
+  # Required by artifacts/delta-lp/vite.config.ts (it throws when unset).
+  PORT = "4173"
+  BASE_PATH = "/"
+
+  # Leave empty so the frontend calls same-origin /api/*, which the redirect
+  # below forwards to the bundled Netlify Function.
+  VITE_API_BASE_URL = ""
+
+  # Robinhood Chain / Uniswap V3 deployment used by the UI.
+  VITE_CHAIN_ID = "4663"
+  VITE_RPC_URL = "https://rpc.mainnet.chain.robinhood.com"
+  VITE_CHAIN_NAME = "Robinhood Chain"
+  VITE_NATIVE_CURRENCY_NAME = "Ether"
+  VITE_NATIVE_CURRENCY_SYMBOL = "ETH"
+  VITE_BLOCK_EXPLORER_URL = "https://robinhoodchain.blockscout.com"
+  VITE_UNISWAP_V3_POSITION_MANAGER = "0x73991a25c818bf1f1128deaab1492d45638de0d3"
+  VITE_UNISWAP_V3_FACTORY = "0x1f7d7550b1b028f7571e69a784071f0205fd2efa"
+  VITE_LP_TOKEN0_ADDRESS = "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73"
+  VITE_LP_TOKEN1_ADDRESS = "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168"
+  VITE_LP_TOKEN0_LABEL = "WETH"
+  VITE_LP_TOKEN1_LABEL = "USDG"
+  VITE_EXIT_KEEPER_ADDRESS = "0x62534e5d7f14ad180bb8d5eeed9e4433aa56132c"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [[redirects]]
   from = "/api/*"
@@ -13,7 +43,25 @@
   status = 200
   force = true
 
+# SPA fallback — must stay last so it does not shadow /api/*.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    cache-control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    cache-control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    x-content-type-options = "nosniff"
+    referrer-policy = "strict-origin-when-cross-origin"
+    x-frame-options = "SAMEORIGIN"
