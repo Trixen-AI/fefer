@@ -1,11 +1,11 @@
 {
-  "name": "Liqora",
-  "short_name": "Liqora",
+  "name": "LI.CO",
+  "short_name": "LI.CO",
   "description": "Automated take-profit controls for concentrated liquidity on Robinhood Chain.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#06100B",
-  "theme_color": "#06100B",
+  "background_color": "#f6f3f2",
+  "theme_color": "#f6f3f2",
   "icons": [
     {
       "src": "icon-192.png",

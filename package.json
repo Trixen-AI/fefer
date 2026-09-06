@@ -10,7 +10,6 @@
   },
   "private": true,
   "dependencies": {
-    "@replit/connectors-sdk": "^0.4.1",
     "solc": "^0.8.36"
   },
   "devDependencies": {

@@ -5,10 +5,7 @@ import {
   decodeUint256,
   decodeWords,
 } from "@/lib/ethereum";
-import {
-  isUniswapV3Configured,
-  robinhoodChain,
-} from "@/config/network";
+import { isUniswapV3Configured, robinhoodChain } from "@/config/network";
 import { useWallet } from "@/hooks/use-wallet";
 import { apiUrl } from "@/lib/api";
 
@@ -78,10 +75,7 @@ export function useLiquidityPositions() {
         );
       }
       const nextPositions = payload.positions.map((item) => {
-        if (
-          typeof item.tokenId !== "string" ||
-          typeof item.data !== "string"
-        ) {
+        if (typeof item.tokenId !== "string" || typeof item.data !== "string") {
           throw new Error("Position API returned malformed NFT data.");
         }
         return formatPosition(item.data, BigInt(item.tokenId));

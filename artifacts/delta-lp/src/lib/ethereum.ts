@@ -1,23 +1,23 @@
 export type EthereumListener = (...args: unknown[]) => void;
 
 export type EthereumProvider = {
-  request: (args: {
-    method: string;
-    params?: unknown[];
-  }) => Promise<unknown>;
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
   on?: (event: string, listener: EthereumListener) => void;
   removeListener?: (event: string, listener: EthereumListener) => void;
 };
 
-declare global {
-  interface Window {
-    ethereum?: EthereumProvider;
-  }
+// The only provider source is Reown AppKit, set once the user connects a
+// wallet from the modal. window.ethereum is deliberately never touched: even
+// a read-only eth_accounts probe makes extensions such as Phantom pop up
+// their "which extension?" chooser on every page load.
+let connectedProvider: EthereumProvider | null = null;
+
+export function setEthereumProvider(provider: EthereumProvider | null) {
+  connectedProvider = provider;
 }
 
 export function getEthereumProvider() {
-  if (typeof window === "undefined") return undefined;
-  return window.ethereum;
+  return connectedProvider ?? undefined;
 }
 
 export function getWalletErrorMessage(

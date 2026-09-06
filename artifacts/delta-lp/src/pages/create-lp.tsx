@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, ChevronDown, ClipboardList, ExternalLink, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChevronDown,
+  ClipboardList,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
 import { Link } from "wouter";
 import { useWallet } from "@/hooks/use-wallet";
 import { useUniswapPool } from "@/hooks/use-uniswap-pool";
@@ -83,8 +91,7 @@ export default function CreateLP() {
     Boolean(token0 && token1) &&
     (!token0Required ||
       (amount0 > 0n && (token0?.allowance ?? 0n) >= amount0)) &&
-    (!token1Required ||
-      (amount1 > 0n && (token1?.allowance ?? 0n) >= amount1));
+    (!token1Required || (amount1 > 0n && (token1?.allowance ?? 0n) >= amount1));
 
   const poolState = useMemo(() => {
     if (!connected) return "Connect wallet to read the pool.";
@@ -99,7 +106,8 @@ export default function CreateLP() {
     setActiveApproval(token.address);
     setActionMessage(null);
     try {
-      const requiredAmount = token.address === token0?.address ? amount0 : amount1;
+      const requiredAmount =
+        token.address === token0?.address ? amount0 : amount1;
       const hash = await approve(token, requiredAmount);
       setActionMessage(`Approval confirmed: ${shortenAddress(hash)}`);
     } catch {
@@ -127,38 +135,56 @@ export default function CreateLP() {
   };
 
   return (
-    <div className="liqora-rise max-w-4xl">
-      <Link href="/" className="mb-7 inline-flex items-center gap-2 rounded text-xs text-[#7c967f] hover:text-[#c9ddcc] focus:outline-none focus:ring-1 focus:ring-primary">
+    <div className="lico-rise max-w-4xl">
+      <Link
+        href="/"
+        className="mb-7 inline-flex items-center gap-2 rounded text-xs text-muted-foreground hover:text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+      >
         <ArrowLeft size={15} /> Back to positions
       </Link>
 
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <p className="mb-3 text-[11px] uppercase tracking-[.18em] text-[#688471]">Position builder</p>
-          <h1 className="text-3xl font-semibold tracking-[-.04em]">Create LP</h1>
-          <p className="mt-2 text-sm text-[#819989]">Set the range. Approve the tokens. Review before minting.</p>
+          <p className="mb-3 text-[11px] uppercase tracking-[.18em] text-muted-foreground">
+            Position builder
+          </p>
+          <h1 className="text-3xl font-semibold tracking-[-.04em]">
+            Create LP
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Set the range. Approve the tokens. Review before minting.
+          </p>
         </div>
-        <span className="text-xs text-[#6f8975]">Step {step} of 3</span>
+        <span className="text-xs text-muted-foreground">Step {step} of 3</span>
       </div>
 
       <div className="mb-8 flex gap-2">
-        {[["01", "Pair"], ["02", "Range"], ["03", "Review"]].map(([number, label], index) => (
+        {[
+          ["01", "Pair"],
+          ["02", "Range"],
+          ["03", "Review"],
+        ].map(([number, label], index) => (
           <div key={number} className="flex flex-1 items-center gap-2">
-            <div className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold ${step > index ? "bg-primary text-primary-foreground" : "border border-[#5ee08a33] text-[#8ea596]"}`}>
+            <div
+              className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold ${step > index ? "bg-primary text-primary-foreground" : "border border-signal/30 text-muted-foreground"}`}
+            >
               {step > index + 1 ? <Check size={13} /> : number}
             </div>
-            <span className="hidden text-xs text-[#8ea596] sm:block">{label}</span>
-            {index < 2 && <div className="h-px flex-1 bg-[#6aa47722]" />}
+            <span className="hidden text-xs text-muted-foreground sm:block">
+              {label}
+            </span>
+            {index < 2 && <div className="h-px flex-1 bg-border" />}
           </div>
         ))}
       </div>
 
       {step === 1 && (
         <div className="grid gap-4 md:grid-cols-[1.2fr_.8fr]">
-          <div className="card-gradient rounded-xl border p-5">
+          <div className="card-gradient rounded-[24px] border p-5">
             <h3 className="text-sm font-semibold">Choose token pair</h3>
-            <p className="mt-1 text-xs text-[#718a77]">
-              The pair and pool are read from the verified Robinhood Chain deployment.
+            <p className="mt-1 text-xs text-muted-foreground">
+              The pair and pool are read from the verified Robinhood Chain
+              deployment.
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
@@ -170,12 +196,18 @@ export default function CreateLP() {
                 const label = token?.symbol ?? (index === 0 ? "WETH" : "USDG");
                 const address = token?.address ?? fallbackAddress;
                 return (
-                  <div key={address || index} className="rounded-lg border border-[#6aa47727] bg-[#08150e] p-4 text-left">
+                  <div
+                    key={address || index}
+                    className="rounded-2xl border border-border bg-card p-4 text-left"
+                  >
                     <div className="mb-4 flex items-center gap-2">
-                      <Token symbol={label} tone={index === 0 ? "#9bc8a6" : "#8db6d8"} />
+                      <Token
+                        symbol={label}
+                        tone={index === 0 ? "#9bc8a6" : "#8db6d8"}
+                      />
                       <span className="text-sm">{label}</span>
                     </div>
-                    <div className="text-xs text-[#8ba38f]">
+                    <div className="text-xs text-muted-foreground">
                       {token
                         ? `${formatUnits(token.balance, token.decimals)} available`
                         : !connected
@@ -189,7 +221,7 @@ export default function CreateLP() {
                       target="_blank"
                       rel="noreferrer"
                       title={address}
-                      className="mt-3 block truncate font-mono text-[10px] text-[#78c98b] underline decoration-[#78c98b55] underline-offset-2"
+                      className="mt-3 block truncate font-mono text-[10px] text-signal underline decoration-signal/50 underline-offset-2"
                     >
                       Contract {shortenAddress(address)}
                     </a>
@@ -198,26 +230,49 @@ export default function CreateLP() {
               })}
             </div>
 
-            <label className="mt-5 block text-xs text-[#8ea596]">Fee tier</label>
-            <button disabled className="mt-2 flex w-full cursor-not-allowed items-center justify-between rounded-lg border border-[#6aa47727] bg-[#08150e] p-3 text-sm text-[#c7d9ca] opacity-90">
-              <span>0.05% <span className="ml-2 text-xs text-[#647d6b]">Tick spacing 10</span></span>
+            <label className="mt-5 block text-xs text-muted-foreground">
+              Fee tier
+            </label>
+            <button
+              disabled
+              className="mt-2 flex w-full cursor-not-allowed items-center justify-between rounded-2xl border border-border bg-card p-3 text-sm text-foreground opacity-90"
+            >
+              <span>
+                0.05%{" "}
+                <span className="ml-2 text-xs text-muted-foreground">
+                  Tick spacing 10
+                </span>
+              </span>
               <ChevronDown size={15} />
             </button>
 
-            <div className={`mt-4 rounded-lg border p-3 text-xs ${poolAddress ? "border-[#5ee08a2c] bg-[#5ee08a08] text-[#9dccaa]" : "border-[#c99a5738] bg-[#c99a570b] text-[#b69a6b]"}`}>
+            <div
+              className={`mt-4 rounded-2xl border p-3 text-xs ${poolAddress ? "border-signal/25 bg-signal/5 text-signal" : "border-amber-300 bg-amber-50 text-amber-700"}`}
+            >
               <div className="flex items-center gap-2">
                 {isLoading && <Loader2 size={13} className="animate-spin" />}
                 {poolState}
               </div>
-              {poolAddress && <a className="mt-2 inline-flex items-center gap-1 text-[11px] underline underline-offset-2" href={`https://robinhoodchain.blockscout.com/address/${poolAddress}`} target="_blank" rel="noreferrer">View pool <ExternalLink size={11} /></a>}
+              {poolAddress && (
+                <a
+                  className="mt-2 inline-flex items-center gap-1 text-[11px] underline underline-offset-2"
+                  href={`https://robinhoodchain.blockscout.com/address/${poolAddress}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View pool <ExternalLink size={11} />
+                </a>
+              )}
             </div>
 
-            {error && <p className="mt-3 text-xs text-[#e1aa9d]">{error}</p>}
+            {error && <p className="mt-3 text-xs text-destructive">{error}</p>}
 
             <button
               onClick={() => setStep(2)}
-              disabled={!connected || !onTargetNetwork || !poolAddress || isLoading}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-[#7aeda0] disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={
+                !connected || !onTargetNetwork || !poolAddress || isLoading
+              }
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-signal disabled:cursor-not-allowed disabled:opacity-40"
             >
               Continue <ArrowRight size={15} />
             </button>
@@ -228,63 +283,82 @@ export default function CreateLP() {
 
       {step === 2 && (
         <div className="grid gap-4 md:grid-cols-[1.2fr_.8fr]">
-          <div className="card-gradient rounded-xl border p-5">
-            <h3 className="text-sm font-semibold">Set deposits and price range</h3>
-            <p className="mt-1 text-xs text-[#718a77]">
+          <div className="card-gradient rounded-[24px] border p-5">
+            <h3 className="text-sm font-semibold">
+              Set deposits and price range
+            </h3>
+            <p className="mt-1 text-xs text-muted-foreground">
               Tick values must be aligned to the 0.05% pool spacing of 10.
               {currentTick !== null && ` Current pool tick: ${currentTick}.`}
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
-              {[{
-                label: token0?.symbol ?? "WETH",
-                value: amount0Input,
-                setValue: setAmount0Input,
-                balance: token0 ? formatUnits(token0.balance, token0.decimals) : "—",
-              }, {
-                label: token1?.symbol ?? "USDG",
-                value: amount1Input,
-                setValue: setAmount1Input,
-                balance: token1 ? formatUnits(token1.balance, token1.decimals) : "—",
-              }].map((asset) => (
-                <label key={asset.label} className="text-[11px] text-[#78917e]">
+              {[
+                {
+                  label: token0?.symbol ?? "WETH",
+                  value: amount0Input,
+                  setValue: setAmount0Input,
+                  balance: token0
+                    ? formatUnits(token0.balance, token0.decimals)
+                    : "N/A",
+                },
+                {
+                  label: token1?.symbol ?? "USDG",
+                  value: amount1Input,
+                  setValue: setAmount1Input,
+                  balance: token1
+                    ? formatUnits(token1.balance, token1.decimals)
+                    : "N/A",
+                },
+              ].map((asset) => (
+                <label
+                  key={asset.label}
+                  className="text-[11px] text-muted-foreground"
+                >
                   Deposit {asset.label}
                   <input
                     inputMode="decimal"
                     value={asset.value}
                     onChange={(event) => asset.setValue(event.target.value)}
                     placeholder="0.00"
-                    className="mt-2 w-full rounded-lg border border-[#6aa47727] bg-[#08150e] px-3 py-3 text-sm text-[#d7e8d9] outline-none placeholder:text-[#4f6956] focus:border-primary"
+                    className="mt-2 w-full rounded-2xl border border-border bg-card px-3 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
                   />
-                  <span className="mt-1 block text-[10px] text-[#5e7765]">Available: {asset.balance}</span>
+                  <span className="mt-1 block text-[10px] text-muted-foreground">
+                    Available: {asset.balance}
+                  </span>
                 </label>
               ))}
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <label className="text-[11px] text-[#78917e]">
+              <label className="text-[11px] text-muted-foreground">
                 Lower tick
                 <input
                   inputMode="numeric"
                   value={tickLowerInput}
                   onChange={(event) => setTickLowerInput(event.target.value)}
-                  className={`mt-2 w-full rounded-lg border bg-[#08150e] px-3 py-3 text-sm text-[#d7e8d9] outline-none ${isValidTick(tickLowerInput) ? "border-[#6aa47727] focus:border-primary" : "border-[#9a5b50]"} `}
+                  className={`mt-2 w-full rounded-2xl border bg-card px-3 py-3 text-sm text-foreground outline-none ${isValidTick(tickLowerInput) ? "border-border focus:border-primary" : "border-destructive/40"} `}
                 />
               </label>
-              <label className="text-[11px] text-[#78917e]">
+              <label className="text-[11px] text-muted-foreground">
                 Upper tick
                 <input
                   inputMode="numeric"
                   value={tickUpperInput}
                   onChange={(event) => setTickUpperInput(event.target.value)}
-                  className={`mt-2 w-full rounded-lg border bg-[#08150e] px-3 py-3 text-sm text-[#d7e8d9] outline-none ${isValidTick(tickUpperInput) ? "border-[#6aa47727] focus:border-primary" : "border-[#9a5b50]"}`}
+                  className={`mt-2 w-full rounded-2xl border bg-card px-3 py-3 text-sm text-foreground outline-none ${isValidTick(tickUpperInput) ? "border-border focus:border-primary" : "border-destructive/40"}`}
                 />
               </label>
             </div>
 
-            {!rangeValid && <p className="mt-3 text-xs text-[#e1aa9d]">Use ticks between {MIN_TICK} and {MAX_TICK}, divisible by 10, with lower below upper.</p>}
+            {!rangeValid && (
+              <p className="mt-3 text-xs text-destructive">
+                Use ticks between {MIN_TICK} and {MAX_TICK}, divisible by 10,
+                with lower below upper.
+              </p>
+            )}
             {rangeValid && !amountsValid && (
-              <p className="mt-3 text-xs text-[#e1aa9d]">
+              <p className="mt-3 text-xs text-destructive">
                 {token0Required && token1Required
                   ? "Enter a positive deposit for both tokens."
                   : token0Required
@@ -292,14 +366,23 @@ export default function CreateLP() {
                     : `This range is below the current price. Enter a ${token1?.symbol ?? "token 1"} deposit; the other token is not required.`}
               </p>
             )}
-            {amountsValid && !balancesValid && <p className="mt-3 text-xs text-[#e1aa9d]">Deposit cannot exceed the connected wallet balance.</p>}
+            {amountsValid && !balancesValid && (
+              <p className="mt-3 text-xs text-destructive">
+                Deposit cannot exceed the connected wallet balance.
+              </p>
+            )}
 
             <div className="mt-6 flex gap-3">
-              <button onClick={() => setStep(1)} className="flex items-center justify-center rounded-lg border border-[#6aa47727] px-4 py-3 text-sm font-semibold text-[#8ea596] transition-colors hover:bg-[#08150e] hover:text-[#c9ddcc]">Back</button>
+              <button
+                onClick={() => setStep(1)}
+                className="flex items-center justify-center rounded-2xl border border-border px-4 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
+              >
+                Back
+              </button>
               <button
                 onClick={() => setStep(3)}
                 disabled={!inputsValid}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-[#7aeda0] disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-signal disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Continue to review <ArrowRight size={15} />
               </button>
@@ -311,63 +394,113 @@ export default function CreateLP() {
 
       {step === 3 && (
         <div className="grid gap-4 md:grid-cols-[1.2fr_.8fr]">
-          <div className="card-gradient rounded-xl border p-5">
+          <div className="card-gradient rounded-[24px] border p-5">
             <div className="flex items-center gap-2">
               <ClipboardList size={17} className="text-primary" />
               <h3 className="text-sm font-semibold">Approve and mint</h3>
             </div>
 
-            <div className="mt-5 divide-y divide-[#6aa47718] text-sm">
+            <div className="mt-5 divide-y divide-border text-sm">
               {[
-                ["Pair", `${token0?.symbol ?? "WETH"} / ${token1?.symbol ?? "USDG"}`],
-                ["Pool", poolAddress ? shortenAddress(poolAddress) : "Unavailable"],
+                [
+                  "Pair",
+                  `${token0?.symbol ?? "WETH"} / ${token1?.symbol ?? "USDG"}`,
+                ],
+                [
+                  "Pool",
+                  poolAddress ? shortenAddress(poolAddress) : "Unavailable",
+                ],
                 ["Fee tier", "0.05%"],
                 ["Tick range", `${tickLower} → ${tickUpper}`],
-                ["Deposit", `${amount0Input || "0"} ${token0?.symbol ?? "WETH"} + ${amount1Input || "0"} ${token1?.symbol ?? "USDG"}`],
+                [
+                  "Deposit",
+                  `${amount0Input || "0"} ${token0?.symbol ?? "WETH"} + ${amount1Input || "0"} ${token1?.symbol ?? "USDG"}`,
+                ],
                 ["Slippage", "0.50%"],
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between gap-4 py-3">
-                  <span className="text-[#718a77]">{label}</span>
-                  <span className="text-right text-[#c6d8c9]">{value}</span>
+                  <span className="text-muted-foreground">{label}</span>
+                  <span className="text-right text-foreground">{value}</span>
                 </div>
               ))}
             </div>
 
             <div className="mt-5 space-y-2">
-              {[token0, token1].map((token) => token && (
-                <div key={token.address} className="flex items-center justify-between rounded-lg border border-[#6aa4771c] bg-[#08150e] p-3">
-                  <div>
-                    <p className="text-xs text-[#c7d9ca]">{token.symbol} allowance</p>
-                    <p className="mt-1 text-[10px] text-[#718a77]">{formatUnits(token.allowance, token.decimals)} approved</p>
-                  </div>
-                  {(token.allowance >= (token === token0 ? amount0 : amount1)) && (token === token0 ? amount0 : amount1) > 0n ? (
-                    <StatusPill green><span className="inline-flex items-center gap-1"><Check size={11} /> Ready</span></StatusPill>
-                  ) : (
-                    <button
-                      onClick={() => void handleApprove(token)}
-                      disabled={isSubmitting || activeApproval !== null}
-                      className="rounded-md bg-primary px-3 py-2 text-[11px] font-semibold text-primary-foreground transition hover:bg-[#7aeda0] disabled:cursor-not-allowed disabled:opacity-40"
+              {[token0, token1].map(
+                (token) =>
+                  token && (
+                    <div
+                      key={token.address}
+                      className="flex items-center justify-between rounded-2xl border border-border bg-card p-3"
                     >
-                      {activeApproval === token.address ? "Approving…" : `Approve ${token.symbol}`}
-                    </button>
-                  )}
-                </div>
-              ))}
+                      <div>
+                        <p className="text-xs text-foreground">
+                          {token.symbol} allowance
+                        </p>
+                        <p className="mt-1 text-[10px] text-muted-foreground">
+                          {formatUnits(token.allowance, token.decimals)}{" "}
+                          approved
+                        </p>
+                      </div>
+                      {token.allowance >=
+                        (token === token0 ? amount0 : amount1) &&
+                      (token === token0 ? amount0 : amount1) > 0n ? (
+                        <StatusPill green>
+                          <span className="inline-flex items-center gap-1">
+                            <Check size={11} /> Ready
+                          </span>
+                        </StatusPill>
+                      ) : (
+                        <button
+                          onClick={() => void handleApprove(token)}
+                          disabled={isSubmitting || activeApproval !== null}
+                          className="rounded-xl bg-primary px-3 py-2 text-[11px] font-semibold text-primary-foreground transition hover:bg-signal disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {activeApproval === token.address
+                            ? "Approving…"
+                            : `Approve ${token.symbol}`}
+                        </button>
+                      )}
+                    </div>
+                  ),
+              )}
             </div>
 
-            {error && <p className="mt-4 text-xs text-[#e1aa9d]">{error}</p>}
-            {actionMessage && <p className="mt-4 break-all text-xs text-[#9dccaa]">{actionMessage}</p>}
+            {error && <p className="mt-4 text-xs text-destructive">{error}</p>}
+            {actionMessage && (
+              <p className="mt-4 break-all text-xs text-signal">
+                {actionMessage}
+              </p>
+            )}
 
             <button
               onClick={() => void handleMint()}
               disabled={!inputsValid || !approvalsReady || isSubmitting}
-              className="mt-5 w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition hover:bg-[#7aeda0] disabled:cursor-not-allowed disabled:opacity-40"
+              className="mt-5 w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition hover:bg-signal disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {isSubmitting ? "Waiting for wallet…" : approvalsReady ? "Create LP position" : "Approve both tokens to continue"}
+              {isSubmitting
+                ? "Waiting for wallet…"
+                : approvalsReady
+                  ? "Create LP position"
+                  : "Approve both tokens to continue"}
             </button>
-            {txHash && <a href={`https://robinhoodchain.blockscout.com/tx/${txHash}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex w-full items-center justify-center gap-2 text-xs text-[#8ea596] underline underline-offset-2">View latest transaction <ExternalLink size={12} /></a>}
+            {txHash && (
+              <a
+                href={`https://robinhoodchain.blockscout.com/tx/${txHash}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 text-xs text-muted-foreground underline underline-offset-2"
+              >
+                View latest transaction <ExternalLink size={12} />
+              </a>
+            )}
 
-            <button onClick={() => setStep(2)} className="mt-3 w-full rounded py-2 text-xs text-[#8ea596] hover:text-[#cfe1d2]">Adjust range or deposit</button>
+            <button
+              onClick={() => setStep(2)}
+              className="mt-3 w-full rounded py-2 text-xs text-muted-foreground hover:text-foreground"
+            >
+              Adjust range or deposit
+            </button>
           </div>
           <Safety />
         </div>

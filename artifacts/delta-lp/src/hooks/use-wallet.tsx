@@ -13,9 +13,16 @@ import {
 } from "@/config/network";
 import {
   getEthereumProvider,
-  type EthereumListener,
+  getWalletErrorMessage,
   type EthereumProvider,
 } from "@/lib/ethereum";
+import {
+  disconnectWalletModal,
+  openAccountModal,
+  isReownConfigured,
+  onAppKitAccountChange,
+  openWalletModal,
+} from "@/lib/appkit";
 
 type WalletContextType = {
   connected: boolean;
@@ -29,11 +36,14 @@ type WalletContextType = {
   networkName: string;
   connect: () => Promise<void>;
   disconnect: () => void;
+  openAccount: () => Promise<void>;
   switchNetwork: () => Promise<void>;
 };
 
 const WalletContext = createContext<WalletContextType | null>(null);
 
+// Reown AppKit is the only connection path. Nothing here reads window.ethereum,
+// so no wallet extension is prompted until the user opens the modal.
 function getProvider() {
   return getEthereumProvider();
 }
@@ -108,7 +118,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const syncWallet = useCallback(async () => {
     const provider = getProvider();
-    if (!provider) return;
+    if (!provider) {
+      setAddress(null);
+      setChainId(null);
+      setNativeBalance(null);
+      return;
+    }
 
     const [accounts, currentChain] = await Promise.all([
       provider.request({ method: "eth_accounts" }),
@@ -144,16 +159,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const switchNetwork = useCallback(async () => {
     const provider = getProvider();
     if (!provider) {
-      setError("MetaMask or another EVM wallet was not detected in this browser.");
+      setError("Connect a wallet before switching networks.");
       return;
     }
 
     try {
       setError(null);
       await switchProviderNetwork(provider);
-      setChainId(
-        getChainId(await provider.request({ method: "eth_chainId" })),
-      );
+      setChainId(getChainId(await provider.request({ method: "eth_chainId" })));
       if (address) {
         try {
           const balance = await provider.request({
@@ -174,12 +187,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       );
       await syncWallet();
     }
-  }, [syncWallet]);
+  }, [address, syncWallet]);
 
   const connect = useCallback(async () => {
-    const provider = getProvider();
-    if (!provider) {
-      setError("MetaMask or another EVM wallet was not detected in this browser.");
+    if (!isReownConfigured) {
+      setError(
+        "WalletConnect is not configured: set VITE_REOWN_PROJECT_ID to your Reown project id.",
+      );
       return;
     }
 
@@ -187,85 +201,42 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const accounts = await provider.request({
-        method: "eth_requestAccounts",
-      });
-      const nextAccounts = Array.isArray(accounts) ? accounts : [];
-      setAddress(typeof nextAccounts[0] === "string" ? nextAccounts[0] : null);
-
-      const currentChain = getChainId(
-        await provider.request({ method: "eth_chainId" }),
-      );
-      setChainId(currentChain);
-
-      if (
-        isRobinhoodChainConfigured &&
-        robinhoodChain.chainId !== null &&
-        currentChain !== robinhoodChain.chainId
-      ) {
-        await switchProviderNetwork(provider);
-        setChainId(
-          getChainId(await provider.request({ method: "eth_chainId" })),
-        );
-      }
-
-      if (
-        isRobinhoodChainConfigured &&
-        robinhoodChain.chainId !== null &&
-        (currentChain === robinhoodChain.chainId ||
-          (await provider.request({ method: "eth_chainId" })) ===
-            toChainIdHex(robinhoodChain.chainId))
-      ) {
-        try {
-          const balance = await provider.request({
-            method: "eth_getBalance",
-            params: [nextAccounts[0], "latest"],
-          });
-          setNativeBalance(formatNativeBalance(balance));
-        } catch {
-          setNativeBalance(null);
-        }
-      }
-    } catch (connectError) {
-      const code = getErrorCode(connectError);
-      setError(
-        code === 4001
-          ? "The wallet connection request was cancelled."
-          : "The wallet could not be connected. Please try again.",
-      );
+      // Loads the SDK and opens the picker, only ever from this click.
+      await openWalletModal();
       await syncWallet();
+    } catch (cause) {
+      setError(
+        getWalletErrorMessage(
+          cause,
+          "The wallet could not be connected. Please try again.",
+        ),
+      );
     } finally {
       setIsConnecting(false);
     }
   }, [syncWallet]);
 
+  // Opens AppKit's account panel instead of tearing the session down on one
+  // click. The user disconnects from inside the modal if that is what they want.
+  const openAccount = useCallback(async () => {
+    try {
+      await openAccountModal();
+    } catch {
+      setError("The wallet panel could not be opened. Please try again.");
+    }
+  }, []);
+
   const disconnect = useCallback(() => {
+    void disconnectWalletModal();
     setAddress(null);
     setChainId(null);
     setNativeBalance(null);
     setError(null);
   }, []);
 
-  useEffect(() => {
-    void syncWallet();
-    const provider = getProvider();
-    if (!provider?.on) return;
-
-    const handleAccountsChanged: EthereumListener = () => {
-      void syncWallet();
-    };
-    const handleChainChanged: EthereumListener = () => {
-      void syncWallet();
-    };
-
-    provider.on("accountsChanged", handleAccountsChanged);
-    provider.on("chainChanged", handleChainChanged);
-
-    return () => {
-      provider.removeListener?.("accountsChanged", handleAccountsChanged);
-      provider.removeListener?.("chainChanged", handleChainChanged);
-    };
-  }, [syncWallet]);
+  // The AppKit session is the single source of truth: it fires on connect,
+  // disconnect, account switch and chain switch.
+  useEffect(() => onAppKitAccountChange(() => void syncWallet()), [syncWallet]);
 
   const connected = Boolean(address);
   const onTargetNetwork =
@@ -287,6 +258,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         networkName: robinhoodChain.chainName,
         connect,
         disconnect,
+        openAccount,
         switchNetwork,
       }}
     >

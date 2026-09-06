@@ -56,7 +56,9 @@ async function readAllFeeBearingTokenIds(owner: string) {
         );
         const [tokenIdWord] = decodeWords(response);
         if (!tokenIdWord) {
-          throw new Error(`Position manager returned an empty token ID at index ${index}.`);
+          throw new Error(
+            `Position manager returned an empty token ID at index ${index}.`,
+          );
         }
         return decodeUint256(tokenIdWord);
       }),
@@ -100,7 +102,8 @@ export function usePositionActions() {
     const provider = getEthereumProvider();
     if (!provider || !address) throw new Error("Connect a wallet first.");
     if (!onTargetNetwork) throw new Error("Switch to Robinhood Chain first.");
-    if (!isUniswapV3Configured) throw new Error("Uniswap contracts are not configured.");
+    if (!isUniswapV3Configured)
+      throw new Error("Uniswap contracts are not configured.");
     return { provider, address };
   };
 
@@ -109,10 +112,10 @@ export function usePositionActions() {
     label: string,
   ) => {
     const { provider } = assertReady();
-    setStatus(`${label} — waiting for wallet…`);
+    setStatus(`${label}: waiting for wallet…`);
     const hash = await sendTransaction(provider, transaction);
     setTxHashes((previous) => [...previous, hash]);
-    setStatus(`${label} — confirming on-chain…`);
+    setStatus(`${label}: confirming on-chain…`);
     await waitForTransactionReceipt(provider, hash);
     recordActivity({
       address: transaction.from,
@@ -142,7 +145,9 @@ export function usePositionActions() {
         setStatus("Fees collected.");
         return hash;
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Fee collection failed.");
+        setError(
+          cause instanceof Error ? cause.message : "Fee collection failed.",
+        );
         throw cause;
       } finally {
         setIsSubmitting(false);
@@ -151,45 +156,46 @@ export function usePositionActions() {
     [address, onTargetNetwork],
   );
 
-  const collectAll = useCallback(
-    async () => {
-      setIsSubmitting(true);
-      setError(null);
-      setStatus(null);
-      setTxHashes([]);
-      let collectedCount = 0;
-      try {
-        const { address } = assertReady();
-        setStatus("Scanning all wallet positions for unclaimed fees…");
-        const tokenIds = await readAllFeeBearingTokenIds(address);
+  const collectAll = useCallback(async () => {
+    setIsSubmitting(true);
+    setError(null);
+    setStatus(null);
+    setTxHashes([]);
+    let collectedCount = 0;
+    try {
+      const { address } = assertReady();
+      setStatus("Scanning all wallet positions for unclaimed fees…");
+      const tokenIds = await readAllFeeBearingTokenIds(address);
 
-        for (const tokenId of tokenIds) {
-          await sendAndConfirm(
-            {
-              from: address,
-              to: robinhoodChain.uniswapV3PositionManager,
-              data: buildCollectData(tokenId, address),
-            },
-            `Collecting fees (${collectedCount + 1} of ${tokenIds.length})`,
-          );
-          collectedCount++;
-        }
-
-        setStatus(collectedCount > 0 ? "All fees collected." : "No fees to collect.");
-      } catch (cause) {
-        if (collectedCount > 0) {
-          setStatus(
-            `${collectedCount} positions were collected before the process stopped.`,
-          );
-        }
-        setError(cause instanceof Error ? cause.message : "Batch fee collection failed.");
-        throw cause;
-      } finally {
-        setIsSubmitting(false);
+      for (const tokenId of tokenIds) {
+        await sendAndConfirm(
+          {
+            from: address,
+            to: robinhoodChain.uniswapV3PositionManager,
+            data: buildCollectData(tokenId, address),
+          },
+          `Collecting fees (${collectedCount + 1} of ${tokenIds.length})`,
+        );
+        collectedCount++;
       }
-    },
-    [address, onTargetNetwork],
-  );
+
+      setStatus(
+        collectedCount > 0 ? "All fees collected." : "No fees to collect.",
+      );
+    } catch (cause) {
+      if (collectedCount > 0) {
+        setStatus(
+          `${collectedCount} positions were collected before the process stopped.`,
+        );
+      }
+      setError(
+        cause instanceof Error ? cause.message : "Batch fee collection failed.",
+      );
+      throw cause;
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [address, onTargetNetwork]);
 
   const close = useCallback(
     async (position: LiquidityPosition) => {
@@ -215,14 +221,17 @@ export function usePositionActions() {
           buildBurnData(BigInt(position.tokenId)),
         ]);
         setStatus("Simulating liquidity removal…");
-        const simulationResponse = await fetch(apiUrl("/api/chain/simulate-mint"), {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            from: address,
-            data: closeData,
-          }),
-        });
+        const simulationResponse = await fetch(
+          apiUrl("/api/chain/simulate-mint"),
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              from: address,
+              data: closeData,
+            }),
+          },
+        );
         const simulationPayload = (await simulationResponse.json()) as {
           result?: unknown;
           error?: unknown;

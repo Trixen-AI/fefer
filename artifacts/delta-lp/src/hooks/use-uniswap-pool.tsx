@@ -62,7 +62,7 @@ function readStringResponse(data: string) {
   const body = hasStandardDynamicLayout
     ? words.slice(2).join("")
     : hasLengthPrefixedLayout
-      ? words[1] ?? ""
+      ? (words[1] ?? "")
       : words[0];
   const hex = body.slice(0, length * 2);
   let output = "";
@@ -86,7 +86,10 @@ async function readPoolContract(to: string, data: string) {
       return await Promise.race([
         readContract(provider, to, data),
         new Promise<string>((_, reject) =>
-          window.setTimeout(() => reject(new Error("Wallet RPC timed out.")), 6_000),
+          window.setTimeout(
+            () => reject(new Error("Wallet RPC timed out.")),
+            6_000,
+          ),
         ),
       ]);
     } catch {
@@ -155,9 +158,7 @@ export function useUniswapPool() {
 
       if (isZeroAddress(nextPool)) {
         setPoolAddress(null);
-        setTokens(
-          tokenResponses.map((token) => ({ ...token, allowance: 0n })),
-        );
+        setTokens(tokenResponses.map((token) => ({ ...token, allowance: 0n })));
         setCurrentTick(null);
         return;
       }
@@ -170,10 +171,7 @@ export function useUniswapPool() {
           ),
         ),
       );
-      const slot0Response = await readPoolContract(
-        nextPool,
-        SLOT0_SELECTOR,
-      );
+      const slot0Response = await readPoolContract(nextPool, SLOT0_SELECTOR);
       const [, slot0Tick] = decodeWords(slot0Response);
 
       setPoolAddress(nextPool);
@@ -291,14 +289,17 @@ export function useUniswapPool() {
       setIsSubmitting(true);
       setError(null);
       try {
-        const simulationResponse = await fetch(apiUrl("/api/chain/simulate-mint"), {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            from: address,
-            data: buildMintData(0n, 0n),
-          }),
-        });
+        const simulationResponse = await fetch(
+          apiUrl("/api/chain/simulate-mint"),
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              from: address,
+              data: buildMintData(0n, 0n),
+            }),
+          },
+        );
         const simulationPayload = (await simulationResponse.json()) as {
           result?: unknown;
           error?: unknown;

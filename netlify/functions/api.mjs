@@ -1,4 +1,9 @@
-const RPC_URL = "https://rpc.mainnet.chain.robinhood.com";
+// Overridable so a blocked or rate-limited endpoint can be swapped without a
+// code change. Netlify reads RPC_URL from the site environment.
+const RPC_URL =
+  process.env.RPC_URL ||
+  process.env.VITE_RPC_URL ||
+  "https://rpc.mainnet.chain.robinhood.com";
 const POSITION_MANAGER = "0x73991a25c818bf1f1128deaab1492d45638de0d3";
 const MAX_VISIBLE_POSITIONS = 100;
 
@@ -36,7 +41,22 @@ async function rpcCall(to, data) {
   });
   const payload = await result.json();
   if (!result.ok || payload.error || typeof payload.result !== "string") {
-    throw new Error(payload.error?.message || `Chain RPC returned HTTP ${result.status}.`);
+    // Name the host and the selector. A bare upstream message like
+    // "Internal error" says nothing about which call or which endpoint failed.
+    // Host only: RPC_URL can carry an API key.
+    let host = "rpc";
+    try {
+      host = new URL(RPC_URL).host;
+    } catch {
+      /* keep fallback */
+    }
+    const selector = String(data).slice(0, 10);
+    const code = payload.error?.code;
+    const detail =
+      payload.error?.message || `HTTP ${result.status}`;
+    throw new Error(
+      `${detail}${code === undefined ? "" : ` (code ${code})`} [${host} ${selector}]`,
+    );
   }
   return payload.result;
 }

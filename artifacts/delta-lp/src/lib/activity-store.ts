@@ -1,5 +1,5 @@
-const STORAGE_PREFIX = "liqora:activity";
-const ACTIVITY_EVENT = "liqora-activity";
+const STORAGE_PREFIX = "lico:activity";
+const ACTIVITY_EVENT = "lico-activity";
 const MAX_RECORDS = 100;
 
 export type ActivityRecord = {
@@ -35,7 +35,9 @@ export function recordActivity(
   };
   const next = [
     record,
-    ...readActivityRecords(input.address).filter((item) => item.id !== record.id),
+    ...readActivityRecords(input.address).filter(
+      (item) => item.id !== record.id,
+    ),
   ].slice(0, MAX_RECORDS);
   window.localStorage.setItem(storageKey(input.address), JSON.stringify(next));
   window.dispatchEvent(new CustomEvent(ACTIVITY_EVENT));

@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+/* Inter is loaded from index.html so it resolves before this sheet. */
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -35,46 +36,93 @@
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
 
-  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-mono: 'Space Mono', monospace;
+  /* Brand indigo. Deliberate highlights, links and emphasis, never a hover
+     surface (that is --accent). Safe for text: 5.8:1 on --background. */
+  --color-signal: hsl(var(--signal));
+  --color-signal-foreground: hsl(var(--signal-foreground));
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 10px);
+  --radius-md: calc(var(--radius) - 6px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
 }
 
 :root {
-  --background: 153 18% 4%;
-  --foreground: 144 20% 95%;
-  --border: 153 20% 12%;
-  --input: 153 20% 12%;
-  --ring: 142 69% 58%;
+  /* Warm off-white ground with near-black ink: the base pairing that gives
+     this family of sites its editorial, un-crypto feel. */
+  --background: 15 18% 96%;
+  --foreground: 0 0% 10%;
+  --border: 15 10% 88%;
+  --input: 15 10% 88%;
+  --ring: 0 0% 10%;
 
-  --card: 153 16% 6%;
-  --card-foreground: 144 20% 95%;
-  --card-border: 153 20% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+  --card-border: 15 10% 90%;
 
-  --popover: 153 16% 6%;
-  --popover-foreground: 144 20% 95%;
-  --popover-border: 153 20% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 10%;
+  --popover-border: 15 10% 90%;
 
-  --primary: 142 69% 58%;
-  --primary-foreground: 153 20% 5%;
+  /* Ink, not a brand hue: `text-primary` carries emphasis text in ~45 places,
+     so it has to stay readable on --background. */
+  --primary: 0 0% 10%;
+  --primary-foreground: 0 0% 98%;
 
-  --secondary: 153 20% 12%;
-  --secondary-foreground: 144 20% 85%;
+  --secondary: 15 14% 92%;
+  --secondary-foreground: 0 0% 20%;
 
-  --muted: 153 15% 10%;
-  --muted-foreground: 153 15% 55%;
+  --muted: 15 14% 93%;
+  --muted-foreground: 0 0% 30%;
 
-  --accent: 142 69% 12%;
-  --accent-foreground: 142 69% 58%;
+  /* shadcn semantics: this is the subtle hover/active surface, not the brand. */
+  --accent: 15 14% 91%;
+  --accent-foreground: 0 0% 12%;
 
-  --destructive: 0 60% 30%;
-  --destructive-foreground: 0 0% 95%;
+  --destructive: 0 72% 47%;
+  --destructive-foreground: 0 0% 98%;
 
-  --radius: 0.75rem;
+  --signal: 236 73% 56%;
+  --signal-foreground: 0 0% 98%;
+
+  --radius: 1.5rem;
+}
+
+.dark {
+  --background: 20 8% 9%;
+  --foreground: 15 15% 96%;
+  --border: 20 6% 20%;
+  --input: 20 6% 20%;
+  --ring: 236 73% 62%;
+
+  --card: 20 8% 12%;
+  --card-foreground: 15 15% 96%;
+  --card-border: 20 6% 20%;
+
+  --popover: 20 8% 12%;
+  --popover-foreground: 15 15% 96%;
+  --popover-border: 20 6% 20%;
+
+  --primary: 15 15% 96%;
+  --primary-foreground: 20 8% 9%;
+
+  --secondary: 20 6% 18%;
+  --secondary-foreground: 15 15% 90%;
+
+  --muted: 20 6% 16%;
+  --muted-foreground: 20 5% 62%;
+
+  --accent: 20 6% 18%;
+  --accent-foreground: 15 15% 94%;
+
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 98%;
+
+  --signal: 236 84% 70%;
+  --signal-foreground: 20 8% 9%;
 }
 
 @layer base {
@@ -82,12 +130,24 @@
     @apply border-border;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans bg-background text-foreground;
+    /* No -webkit-font-smoothing: antialiased here. It thins dark-on-light
+       text; subpixel rendering keeps Inter crisp on the pale ground. */
+    font-synthesis-weight: none;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  /* Tight, confident headline setting, the other half of the look. */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.035em;
+    font-weight: 800;
+    text-wrap: balance;
   }
 }
 
 @layer utilities {
-  @keyframes liqora-rise {
+  @keyframes lico-rise {
     from {
       opacity: 0;
       transform: translateY(8px);
@@ -97,7 +157,7 @@
       transform: translateY(0);
     }
   }
-  @keyframes liqora-pulse {
+  @keyframes lico-pulse {
     0%,
     100% {
       opacity: 0.45;
@@ -106,22 +166,20 @@
       opacity: 1;
     }
   }
-  .liqora-rise {
-    animation: liqora-rise 0.45s ease-out both;
+  .lico-rise {
+    animation: lico-rise 0.45s ease-out both;
   }
-  .liqora-grid {
-    background-image: 
-      linear-gradient(to right, hsl(var(--border) / 0.3) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--border) / 0.3) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+  .lico-pulse {
+    animation: lico-pulse 2s ease-in-out infinite;
   }
-  
   .card-gradient {
     background: linear-gradient(160deg, hsl(var(--card)), hsl(var(--background)));
   }
 
-  .text-glow {
-    text-shadow: 0 0 12px hsl(var(--primary) / 0.5);
+  @media (prefers-reduced-motion: reduce) {
+    .lico-rise,
+    .lico-pulse {
+      animation: none;
+    }
   }
 }

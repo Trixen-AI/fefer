@@ -1,7 +1,8 @@
 const parsedChainId = Number(import.meta.env.VITE_CHAIN_ID);
 
 export const robinhoodChain = {
-  chainId: Number.isInteger(parsedChainId) && parsedChainId > 0 ? parsedChainId : null,
+  chainId:
+    Number.isInteger(parsedChainId) && parsedChainId > 0 ? parsedChainId : null,
   rpcUrl: String(import.meta.env.VITE_RPC_URL ?? ""),
   chainName: String(import.meta.env.VITE_CHAIN_NAME ?? "Robinhood Chain"),
   nativeCurrency: {
@@ -10,7 +11,8 @@ export const robinhoodChain = {
     decimals: 18,
   },
   explorerUrl: String(
-    import.meta.env.VITE_BLOCK_EXPLORER_URL ?? "https://robinhoodchain.blockscout.com",
+    import.meta.env.VITE_BLOCK_EXPLORER_URL ??
+      "https://robinhoodchain.blockscout.com",
   ),
   uniswapV3PositionManager: String(
     import.meta.env.VITE_UNISWAP_V3_POSITION_MANAGER ?? "",

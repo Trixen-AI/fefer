@@ -1,1 +1,0 @@
-- [Exit keeper policy](exit-keeper-policy.md) — non-custodial exits require 5 minutes continuously outside the same range side; owner always receives proceeds.
