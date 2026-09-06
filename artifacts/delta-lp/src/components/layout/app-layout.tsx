@@ -12,7 +12,6 @@ import {
   Wallet,
 } from "lucide-react";
 import { useWallet } from "@/hooks/use-wallet";
-import { MarketTicker } from "@/components/layout/market-ticker";
 
 type Section = "positions" | "create" | "automation" | "activity";
 
@@ -71,8 +70,6 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-background">
-      <MarketTicker className="relative z-30 hidden sm:flex" />
-
       <div className="relative flex flex-1">
         {/* Desktop sidebar: a quiet column, not a control panel. */}
         <aside className="sticky top-0 hidden h-[100dvh] w-72 shrink-0 flex-col border-r border-border px-5 py-8 lg:flex">
@@ -214,8 +211,6 @@ export function AppLayout({ children }: { children: ReactNode }) {
               </button>
             </div>
           </header>
-
-          <MarketTicker className="sticky top-20 z-10 sm:hidden" />
 
           {error && (
             <div className="border-b border-destructive/20 bg-destructive/10 px-4 py-3 text-center text-[13px] font-medium text-destructive sm:px-10">
