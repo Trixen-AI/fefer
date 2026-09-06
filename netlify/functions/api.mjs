@@ -88,15 +88,49 @@ async function positions(owner) {
   return response(200, { totalCount, positions: result });
 }
 
+/**
+ * Prefer slightly stale prices over an empty ticker. The cached value is kept
+ * long after it stops being "fresh" precisely so a throttled upstream degrades
+ * into old numbers rather than a disconnected banner.
+ */
+function staleOr(message) {
+  if (pricesCache) {
+    return response(200, { ...pricesCache.value, stale: true });
+  }
+  throw new Error(message);
+}
+
 async function marketPrices() {
   if (pricesCache && pricesCache.expiresAt > Date.now()) {
     return response(200, pricesCache.value);
   }
-  const result = await fetch(
-    "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true",
-    { headers: { accept: "application/json" }, signal: AbortSignal.timeout(8_000) },
-  );
-  if (!result.ok) throw new Error(`Market provider returned HTTP ${result.status}.`);
+
+  let result;
+  try {
+    result = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true",
+      {
+        headers: {
+          accept: "application/json",
+          // CoinGecko's free tier is stricter with datacenter IPs, and rejects
+          // some requests that arrive without a user agent.
+          "user-agent": "lico-protocol/1.0 (+https://liqoprotocol.com)",
+        },
+        signal: AbortSignal.timeout(8_000),
+      },
+    );
+  } catch (error) {
+    // Network-level failure (timeout, DNS, refused).
+    return staleOr(
+      `Market provider unreachable: ${error instanceof Error ? error.message : "fetch failed"}.`,
+    );
+  }
+
+  if (!result.ok) {
+    // 429 is the common one: the free tier rate-limits shared cloud IPs, so a
+    // deployed function can be throttled while a laptop on the same code is not.
+    return staleOr(`Market provider returned HTTP ${result.status}.`);
+  }
   const data = await result.json();
   const assets = [
     ["bitcoin", "BTC"],
@@ -114,7 +148,9 @@ async function marketPrices() {
   if (value.prices.some((asset) => typeof asset.priceUsd !== "number")) {
     throw new Error("Market provider returned incomplete data.");
   }
-  pricesCache = { value, expiresAt: Date.now() + 30_000 };
+  // 60s rather than 30s: every visitor refetches on a 30s interval, so a short
+  // window multiplied the upstream calls and helped trip the rate limit.
+  pricesCache = { value, expiresAt: Date.now() + 60_000 };
   return response(200, value);
 }
 

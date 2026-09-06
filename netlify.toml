@@ -36,7 +36,11 @@
   # Reown / WalletConnect — the only wallet connection path.
   # Set the real id in the Netlify UI (Site configuration > Environment
   # variables) so it is not committed here.
-  VITE_REOWN_PROJECT_ID = ""
+  # VITE_REOWN_PROJECT_ID is deliberately NOT set here. Values in this file
+  # override the ones set in the Netlify UI, so an empty default would silently
+  # win over the real id and leave WalletConnect unconfigured. Set it under
+  # Site configuration > Environment variables instead. It is inlined at build
+  # time, so a redeploy is required after changing it.
 
 [functions]
   directory = "netlify/functions"
