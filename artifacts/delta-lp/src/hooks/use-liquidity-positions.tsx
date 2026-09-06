@@ -58,20 +58,38 @@ export function useLiquidityPositions() {
     setError(null);
     try {
       const response = await fetch(apiUrl(`/api/chain/positions/${address}`));
-      const payload = (await response.json()) as {
+
+      // Read as text first. The endpoint can answer with the SPA's index.html
+      // (a misrouted /api call) or with the host's own error envelope, and both
+      // used to surface as one unhelpful "invalid response".
+      const raw = await response.text();
+      let payload: {
         totalCount?: unknown;
         positions?: Array<{ tokenId?: unknown; data?: unknown }>;
         error?: unknown;
       };
+      try {
+        payload = JSON.parse(raw);
+      } catch {
+        const snippet = raw.trim().slice(0, 80).replace(/\s+/g, " ");
+        throw new Error(
+          `Position API returned ${response.status} with a non-JSON body: ${snippet || "(empty)"}`,
+        );
+      }
+
       if (
         !response.ok ||
         typeof payload.totalCount !== "number" ||
         !Array.isArray(payload.positions)
       ) {
+        if (typeof payload.error === "string") throw new Error(payload.error);
+        // Unrecognised JSON shape: show what actually came back rather than a
+        // generic message, so the failing layer is identifiable.
+        const keys = Object.keys(payload ?? {})
+          .slice(0, 5)
+          .join(", ");
         throw new Error(
-          typeof payload.error === "string"
-            ? payload.error
-            : "Position API returned an invalid response.",
+          `Position API returned ${response.status} with an unexpected shape {${keys || "empty"}}`,
         );
       }
       const nextPositions = payload.positions.map((item) => {

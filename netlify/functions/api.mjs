@@ -154,7 +154,16 @@ async function marketPrices() {
   return response(200, value);
 }
 
-export default async function handler(event) {
+/**
+ * Netlify v1 (event/callback) function.
+ *
+ * Exported by name on purpose: an ESM file whose DEFAULT export is a function
+ * is treated as a v2 function, which is handed a `Request` and must return a
+ * `Response`. This handler reads `event.httpMethod`/`event.path` and returns
+ * `{statusCode, headers, body}`, so under v2 every field is undefined and the
+ * return value is rejected by the runtime. Keep this a named export.
+ */
+export async function handler(event) {
   if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers, body: "" };
   const functionPrefix = "/.netlify/functions/api";
   const path = (event.path || "").replace(functionPrefix, "").replace(/^\/api/, "") || "/";
