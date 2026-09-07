@@ -147,7 +147,7 @@
 }
 
 @layer utilities {
-  @keyframes lico-rise {
+  @keyframes liqo-rise {
     from {
       opacity: 0;
       transform: translateY(8px);
@@ -157,7 +157,7 @@
       transform: translateY(0);
     }
   }
-  @keyframes lico-pulse {
+  @keyframes liqo-pulse {
     0%,
     100% {
       opacity: 0.45;
@@ -166,19 +166,19 @@
       opacity: 1;
     }
   }
-  .lico-rise {
-    animation: lico-rise 0.45s ease-out both;
+  .liqo-rise {
+    animation: liqo-rise 0.45s ease-out both;
   }
-  .lico-pulse {
-    animation: lico-pulse 2s ease-in-out infinite;
+  .liqo-pulse {
+    animation: liqo-pulse 2s ease-in-out infinite;
   }
   .card-gradient {
     background: linear-gradient(160deg, hsl(var(--card)), hsl(var(--background)));
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .lico-rise,
-    .lico-pulse {
+    .liqo-rise,
+    .liqo-pulse {
       animation: none;
     }
   }

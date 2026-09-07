@@ -1,6 +1,6 @@
 {
-  "name": "LI.CO",
-  "short_name": "LI.CO",
+  "name": "LI.QO",
+  "short_name": "LI.QO",
   "description": "Automated take-profit controls for concentrated liquidity on Robinhood Chain.",
   "start_url": "./",
   "display": "standalone",

@@ -10,7 +10,7 @@ export default function ActivityView() {
   const { transactions, isLoading, error, refresh } = useActivity();
 
   return (
-    <div className="lico-rise">
+    <div className="liqo-rise">
       <div className="mb-8">
         <p className="mb-3 text-[11px] uppercase tracking-[.18em] text-muted-foreground">
           Audit trail

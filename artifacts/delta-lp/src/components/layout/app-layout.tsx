@@ -42,14 +42,14 @@ function Wordmark({ size = "base" }: { size?: "base" | "sm" }) {
     <span
       className={`font-extrabold tracking-[-0.04em] ${size === "sm" ? "text-base" : "text-lg"}`}
     >
-      LI<span className="text-signal">.</span>CO
+      LI<span className="text-signal">.</span>QO
     </span>
   );
 }
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
-  const logoSrc = `${import.meta.env.BASE_URL}lico-logo.png`;
+  const logoSrc = `${import.meta.env.BASE_URL}liqo-logo.png`;
   const {
     connected,
     address,
@@ -119,7 +119,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              aria-label="Follow LI.CO on X"
+              aria-label="Follow LI.QO on X"
             >
               <span className="w-[17px] text-center font-semibold">𝕏</span>
               Follow on X

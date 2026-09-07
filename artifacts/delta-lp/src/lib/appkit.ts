@@ -110,11 +110,11 @@ async function initAppKit(): Promise<AppKitInstance> {
     defaultNetwork: network,
     projectId: reownProjectId,
     metadata: {
-      name: "LI.CO",
+      name: "LI.QO",
       description:
         "Automated take-profit controls for concentrated liquidity on Robinhood Chain.",
       url: window.location.origin,
-      icons: [`${window.location.origin}/lico-logo.png`],
+      icons: [`${window.location.origin}/liqo-logo.png`],
     },
     features: {
       analytics: false,

@@ -112,7 +112,7 @@ export function Safety() {
             Before you continue
           </h3>
           <p className="mt-2 text-xs leading-5 text-amber-700">
-            LP positions can experience impermanent loss. LI.CO does not predict
+            LP positions can experience impermanent loss. LI.QO does not predict
             price movement or guarantee an exit. Review all parameters before
             any wallet approval.
           </p>

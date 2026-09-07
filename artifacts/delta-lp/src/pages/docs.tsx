@@ -18,7 +18,7 @@ const sections = [
   { id: "overview", label: "Overview" },
   { id: "position", label: "Create a position" },
   { id: "keeper", label: "How the exit keeper works" },
-  { id: "custody", label: "What LI.CO cannot do" },
+  { id: "custody", label: "What LI.QO cannot do" },
   { id: "network", label: "Network & contracts" },
   { id: "faq", label: "FAQ" },
 ];
@@ -112,17 +112,17 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export default function Docs() {
   return (
-    <div className="lico-rise">
+    <div className="liqo-rise">
       <div className="mb-14 max-w-2xl">
         <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           Workspace <span className="text-border">/</span>{" "}
           <span className="text-foreground">Documentation</span>
         </div>
         <h1 className="text-[2.75rem] font-extrabold leading-[1.03] tracking-[-0.045em] text-foreground sm:text-6xl">
-          How LI.CO handles your liquidity.
+          How LI.QO handles your liquidity.
         </h1>
         <p className="mt-6 text-[17px] leading-relaxed text-muted-foreground">
-          LI.CO holds nothing. It reads your Uniswap V3 positions, and lets you
+          LI.QO holds nothing. It reads your Uniswap V3 positions, and lets you
           write down the exit you want in advance. Everything below describes
           exactly what that means on-chain.
         </p>
@@ -149,7 +149,7 @@ export default function Docs() {
             and the position stops earning, quietly, until someone notices.
           </p>
           <p>
-            LI.CO is the layer that notices. It tracks each position you hold on{" "}
+            LI.QO is the layer that notices. It tracks each position you hold on{" "}
             {robinhoodChain.chainName}, shows the fees you have not collected,
             and lets you define a price boundary where an automated keeper
             closes the position on your behalf.
@@ -177,7 +177,7 @@ export default function Docs() {
         >
           <div className="space-y-7 pt-2">
             <Step n={1} title="Connect a wallet">
-              Use the Connect button in the header. LI.CO asks for your address
+              Use the Connect button in the header. LI.QO asks for your address
               so it can read positions. Connecting on its own grants no spending
               permission.
             </Step>
@@ -261,7 +261,7 @@ export default function Docs() {
           ) : null}
         </Section>
 
-        <Section id="custody" eyebrow="Custody" title="What LI.CO cannot do">
+        <Section id="custody" eyebrow="Custody" title="What LI.QO cannot do">
           <p>
             Automation is the part of a product like this that deserves the most
             scepticism, so the boundaries are worth stating plainly.
@@ -273,7 +273,7 @@ export default function Docs() {
               want.
             </Fact>
             <Fact icon={ShieldCheck} title="The NFT stays with you">
-              Your position NFT never leaves your wallet. LI.CO is granted
+              Your position NFT never leaves your wallet. LI.QO is granted
               permission to close a specific position, not to hold it.
             </Fact>
             <Fact icon={Wallet} title="Proceeds never route through us">
@@ -293,7 +293,7 @@ export default function Docs() {
             <p className="text-[14px] leading-relaxed text-muted-foreground">
               Providing liquidity carries impermanent loss. A position that
               exits at your boundary can still be worth less than simply holding
-              the two tokens. LI.CO does not protect against that, and does not
+              the two tokens. LI.QO does not protect against that, and does not
               guarantee an exit will find liquidity at your minimum output.
             </p>
           </div>

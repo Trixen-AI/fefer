@@ -1,5 +1,5 @@
-const STORAGE_PREFIX = "lico:activity";
-const ACTIVITY_EVENT = "lico-activity";
+const STORAGE_PREFIX = "liqo:activity";
+const ACTIVITY_EVENT = "liqo-activity";
 const MAX_RECORDS = 100;
 
 export type ActivityRecord = {

@@ -114,7 +114,7 @@ async function marketPrices() {
           accept: "application/json",
           // CoinGecko's free tier is stricter with datacenter IPs, and rejects
           // some requests that arrive without a user agent.
-          "user-agent": "lico-protocol/1.0 (+https://liqoprotocol.com)",
+          "user-agent": "liqo-protocol/1.0 (+https://liqoprotocol.com)",
         },
         signal: AbortSignal.timeout(8_000),
       },

@@ -76,7 +76,7 @@ export default function PositionDetail() {
   };
 
   return (
-    <div className="lico-rise">
+    <div className="liqo-rise">
       <Link
         href="/"
         className="mb-7 inline-flex items-center gap-2 rounded text-xs text-muted-foreground hover:text-foreground focus:outline-none focus:ring-1 focus:ring-primary"

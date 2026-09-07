@@ -135,7 +135,7 @@ export default function CreateLP() {
   };
 
   return (
-    <div className="lico-rise max-w-4xl">
+    <div className="liqo-rise max-w-4xl">
       <Link
         href="/"
         className="mb-7 inline-flex items-center gap-2 rounded text-xs text-muted-foreground hover:text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
